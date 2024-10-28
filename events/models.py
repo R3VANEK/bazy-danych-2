@@ -14,3 +14,4 @@ class Event(models.Model):
     patient = models.ForeignKey(
         Patient, on_delete=models.CASCADE, null=True, blank=True, related_name="events"
     )
+

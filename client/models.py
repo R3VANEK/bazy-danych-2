@@ -9,3 +9,8 @@ class Patient(models.Model):
     birthday = models.DateField()
     phone = models.TextField()
     pesel = models.TextField()
+
+
+
+
+

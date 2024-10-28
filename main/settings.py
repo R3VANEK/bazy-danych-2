@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "dotenv",
     "client",
     "events",
+    "drivers"
 ]
 
 MIDDLEWARE = [
