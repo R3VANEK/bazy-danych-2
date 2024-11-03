@@ -43,10 +43,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "dotenv",
-    "client",
-    "events",
+    "clients",
     "planets",
-    "drivers"
+    "drivers",
+    "rides",
 ]
 
 MIDDLEWARE = [
