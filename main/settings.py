@@ -42,11 +42,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "faker",
     "dotenv",
     "clients",
     "planets",
     "drivers",
     "rides",
+    "utils",
 ]
 
 MIDDLEWARE = [
