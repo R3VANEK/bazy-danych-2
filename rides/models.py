@@ -27,6 +27,5 @@ class Ride(models.Model):
         to=Planet, on_delete=models.SET_NULL, related_name="rides", null=True
     )
     grade = models.PositiveSmallIntegerField()
-    start_date = models.DateTimeField(default=datetime.now)
-    end_date = models.DateTimeField()
+
     is_paid = models.BooleanField(default=False)

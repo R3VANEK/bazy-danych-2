@@ -26,6 +26,10 @@ class Course(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="courses")
     destination = models.ForeignKey(Planet, on_delete=models.CASCADE, related_name="+")
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateTimeField(default=datetime.now)
+
+    # represents number of hours
+    duration = models.PositiveIntegerField()
 
 
 class Vehicle(models.Model):
