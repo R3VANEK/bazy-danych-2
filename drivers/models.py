@@ -1,22 +1,23 @@
 from django.db import models
-from clients.models import User
+from django.contrib.auth.models import User
 from planets.models import Planet
 from datetime import datetime
 
 
 # Create your models here.
-class Driver(User):
+class Driver(models.Model):
     class Meta:
         db_table = "drivers"
         verbose_name = "driver"
         verbose_name_plural = "drivers"
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     license_expiration = models.DateTimeField()
     work_start = models.DateTimeField(default=datetime.now)
     gender = models.BooleanField()
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} | {self.work_start} | {self.gender}"
+        return f"{self.user.first_name} {self.user.last_name} | {self.work_start} | {self.gender}"
 
 
 class Course(models.Model):

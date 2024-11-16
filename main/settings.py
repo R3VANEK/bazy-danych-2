@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "rides",
     "utils",
 ]
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
