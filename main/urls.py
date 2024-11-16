@@ -18,5 +18,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-# urlpatterns = [path("admin/", admin.site.urls), path("client/", include("client.urls"))]
-urlpatterns = [path("admin/", admin.site.urls)]
+
+
+from django.contrib import admin
+from django.urls import path, include  # include pozwala na włączenie URL z innych aplikacji
+
+urlpatterns = [
+    path('admin/', admin.site.urls),  # Panel administracyjny Django
+    path('clients/', include('clients.urls')),  # URL do aplikacji "clients"
+    path('', include('clients.urls')),  # Jeśli chcesz, aby aplikacja "clients" obsługiwała także stronę główną
+]
