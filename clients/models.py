@@ -15,7 +15,7 @@ class User(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=12)
     first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=200)
     created_at = models.DateTimeField(default=datetime.now)
 
     @property

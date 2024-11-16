@@ -15,6 +15,9 @@ class Driver(User):
     work_start = models.DateTimeField(default=datetime.now)
     gender = models.BooleanField()
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} | {self.work_start} | {self.gender}"
+
 
 class Course(models.Model):
 
@@ -30,6 +33,9 @@ class Course(models.Model):
 
     # represents number of hours
     duration = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"course of {self.driver} to {self.destination} | price: {self.price} | start: {self.start_date} | price: {self.price}"
 
 
 class Vehicle(models.Model):
