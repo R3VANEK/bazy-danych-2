@@ -3,6 +3,7 @@ from planets.models import Planet
 from clients.models import Client
 from drivers.models import Driver, Course, Vehicle
 from datetime import datetime
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 
@@ -26,6 +27,8 @@ class Ride(models.Model):
     departure = models.ForeignKey(
         to=Planet, on_delete=models.SET_NULL, related_name="rides", null=True
     )
-    grade = models.PositiveSmallIntegerField()
+    grade = models.PositiveSmallIntegerField(
+        validators=[MaxValueValidator(10), MinValueValidator(0)], default=5
+    )
 
     is_paid = models.BooleanField(default=False)
