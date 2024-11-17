@@ -1,8 +1,8 @@
-
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
+
 
 class ClientManager(BaseUserManager):
     def create_user(self, email, phone_number, first_name, last_name, password=None):
@@ -18,7 +18,9 @@ class ClientManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, phone_number, first_name, last_name, password=None):
+    def create_superuser(
+        self, email, phone_number, first_name, last_name, password=None
+    ):
         user = self.create_user(
             email=email,
             phone_number=phone_number,
@@ -29,6 +31,7 @@ class ClientManager(BaseUserManager):
         user.is_admin = True
         user.save(using=self._db)
         return user
+
 
 # class User(AbstractBaseUser):
 #     email = models.EmailField(unique=True)
@@ -60,11 +63,12 @@ class ClientManager(BaseUserManager):
 #     def full_name(self):
 #         return f"{self.first_name} {self.last_name}"
 
+
 class Client(models.Model):
     class Meta:
         db_table = "clients"
         verbose_name = "client"
         verbose_name_plural = "clients"
-    user= models.OneToOneField(User, on_delete=models.CASCADE)
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=12)
-    created_at = models.DateTimeField(default=datetime.now)

@@ -7,6 +7,7 @@ from drivers.models import Course
 from planets.models import Planet
 from rides.models import Ride
 from datetime import datetime, timedelta
+from django.contrib.auth.models import User
 import os
 import random
 import django
@@ -41,6 +42,7 @@ class Command(BaseCommand):
             courses_list = []
             vehicles_list = []
             clients_list = []
+            users_list = []
 
             for planet in planet_name_list:
                 planet_list.append(
@@ -49,43 +51,39 @@ class Command(BaseCommand):
                     )
                 )
 
-            for _ in range(kwargs["clients"][0] if kwargs["clients"] else 50):
+            clients_count = kwargs["clients"][0] if kwargs["clients"] else 50
+            drivers_count = kwargs["drivers"][0] if kwargs["drivers"] else 30
 
-                clients_list.append(
-                    Client.objects.create(
-                        email=fake.email(),
-                        phone_number=fake.phone_number(),
-                        created_at=fake.date_between_dates(
-                            datetime.strptime(
-                                "2021-02-28 14:30:00", "%Y-%m-%d %H:%M:%S"
-                            ),
-                            datetime.now(),
-                        ),
-                        first_name=fake.first_name(),
-                        last_name=fake.last_name(),
-                    )
+            for _ in range(clients_count):
+                user = User.objects.create_user(
+                    fake.user_name(), fake.email(), "password"
                 )
 
-            for _ in range(kwargs["drivers"][0] if kwargs["drivers"] else 30):
+                user.first_name = fake.first_name()
+                user.last_name = fake.last_name()
+                user.save()
+
+                clients_list.append(
+                    Client.objects.create(phone_number=fake.phone_number(), user=user)
+                )
+
+            for _ in range(drivers_count):
+
+                user = User.objects.create_user(
+                    fake.user_name(), fake.email(), "password"
+                )
+
+                user.first_name = fake.first_name()
+                user.last_name = fake.last_name()
+                user.save()
 
                 driver = Driver.objects.create(
-                    email=fake.email(),
-                    phone_number=fake.phone_number(),
-                    created_at=fake.date_between_dates(
-                        datetime.strptime("2021-02-28 14:30:00", "%Y-%m-%d %H:%M:%S"),
-                        datetime.now(),
-                    ),
-                    first_name=fake.first_name(),
-                    last_name=fake.last_name(),
                     license_expiration=fake.date_between_dates(
                         datetime.strptime("2030-12-30 14:30:00", "%Y-%m-%d %H:%M:%S"),
                         datetime.strptime("2037-12-30 14:30:00", "%Y-%m-%d %H:%M:%S"),
                     ),
-                    work_start=fake.date_between_dates(
-                        datetime.strptime("2021-02-28 14:30:00", "%Y-%m-%d %H:%M:%S"),
-                        datetime.now(),
-                    ),
-                    gender=fake.boolean(),
+                    is_male=fake.boolean(),
+                    user=user,
                 )
 
                 rand_vehicle_count = random.randint(1, 5)
@@ -115,7 +113,7 @@ class Command(BaseCommand):
                                     "2025-02-28 14:30:00", "%Y-%m-%d %H:%M:%S"
                                 ),
                             ),
-                            duration=fake.random_int(min=5, max=100),
+                            duration_days=fake.random_int(min=5, max=100),
                         )
                     )
 

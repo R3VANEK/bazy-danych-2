@@ -10,11 +10,11 @@ class Driver(models.Model):
         db_table = "drivers"
         verbose_name = "driver"
         verbose_name_plural = "drivers"
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     license_expiration = models.DateTimeField()
-    work_start = models.DateTimeField(default=datetime.now)
-    gender = models.BooleanField()
+    is_male = models.BooleanField()
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} | {self.work_start} | {self.gender}"
@@ -33,7 +33,7 @@ class Course(models.Model):
     start_date = models.DateTimeField(default=datetime.now)
 
     # represents number of hours
-    duration = models.PositiveIntegerField()
+    duration_days = models.PositiveIntegerField()
 
     def __str__(self):
         return f"course of {self.driver} to {self.destination} | price: {self.price} | start: {self.start_date} | price: {self.price}"
