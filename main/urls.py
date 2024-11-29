@@ -27,9 +27,7 @@ from django.urls import (
 
 urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
-    path("admin/", admin.site.urls),  # Panel administracyjny Django
-    path("clients/", include("clients.urls")),  # URL do aplikacji "clients"
-    path(
-        "", include("clients.urls")
-    ),  # Jeśli chcesz, aby aplikacja "clients" obsługiwała także stronę główną
+    path("admin/", admin.site.urls),
+    path("clients/", include("clients.urls")),
+    path("", include("clients.urls")),
 ]

@@ -52,7 +52,8 @@ module.exports = {
             "danger": "#FF0051",
             "accept": "#7EE263",
             "warning": "#E2B163",
-            "white": "#FFFFFF"
+            "white": "#FFFFFF",
+            "transparent": "transparent"
             
         },
         extend: {},
