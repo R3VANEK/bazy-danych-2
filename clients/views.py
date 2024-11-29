@@ -20,12 +20,12 @@ def client_login(request):
     else:
         form = ClientLoginForm()
 
-    return render(request, "clients/login.html", {"form": form})
+    return render(request, "login.html", {"form": form})
 
 
 # Widok strony sukcesu po zalogowaniu
 def client_home(request):
-    return render(request, "clients/success.html")
+    return render(request, "success.html")
 
 
 # Widok strony głównej
