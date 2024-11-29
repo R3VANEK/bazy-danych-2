@@ -19,12 +19,17 @@ from django.contrib import admin
 from django.urls import path, include
 
 
-
 from django.contrib import admin
-from django.urls import path, include  # include pozwala na włączenie URL z innych aplikacji
+from django.urls import (
+    path,
+    include,
+)  # include pozwala na włączenie URL z innych aplikacji
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # Panel administracyjny Django
-    path('clients/', include('clients.urls')),  # URL do aplikacji "clients"
-    path('', include('clients.urls')),  # Jeśli chcesz, aby aplikacja "clients" obsługiwała także stronę główną
+    path("__reload__/", include("django_browser_reload.urls")),
+    path("admin/", admin.site.urls),  # Panel administracyjny Django
+    path("clients/", include("clients.urls")),  # URL do aplikacji "clients"
+    path(
+        "", include("clients.urls")
+    ),  # Jeśli chcesz, aby aplikacja "clients" obsługiwała także stronę główną
 ]
