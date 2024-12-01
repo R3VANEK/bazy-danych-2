@@ -27,4 +27,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Panel administracyjny Django
     path('clients/', include('clients.urls')),  # URL do aplikacji "clients"
     path('', include('clients.urls')),  # Jeśli chcesz, aby aplikacja "clients" obsługiwała także stronę główną
+    path('drivers/', include('drivers.urls')),
 ]
