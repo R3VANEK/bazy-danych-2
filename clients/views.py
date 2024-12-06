@@ -6,7 +6,12 @@ from .forms import (
     ClientLoginForm,
     ClientRegistrationForm,
 )
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from drivers.models import Course
+from planets.models import Planet
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import json
 
 
 # Widok logowania klienta
@@ -29,11 +34,22 @@ def client_login(request):
 
 
 def client_home(request):
-    return render(request, "success.html")
+    return render(
+        request,
+        "main.html",
+        {
+            "get_courses_url": f"{request.build_absolute_uri()}clients/courses",
+            "planets": list(Planet.objects.all().distinct().values()),
+        },
+    )
 
 
-def home(request):
-    return HttpResponse("Witaj na stronie głównej aplikacji Klienci!")
+@csrf_exempt
+def courses_rest_view(request):
+    body = json.loads(request.body)
+    departure_id = body.get("departure")
+    courses = list(Course.objects.values())
+    return JsonResponse(courses, safe=False)
 
 
 class ClientRegistrationView(CreateView):

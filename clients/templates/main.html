@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <select name="departure" id="departure">
+        {% for planet in planets %}
+            <option value="{{planet.id}}">{{planet.name}}</option>
+        {% endfor %}
+    </select>
+
+    <input type="datetime-local" id="time-for-departure"/>
+
+    <input type="number" id="grade"/>
+    <input type="number" id="max-price"/>
+
+    <select name="gender-driver" id="gender-driver">
+        <option value="false">Female</option>
+        <option value="true">Male</option>
+        <option value="">Either</option>
+    </select>
+
+    <select name="destination" id="destination">
+        {% for planet in planets %}
+            <option value="{{planet.id}}">{{planet.name}}</option>
+        {% endfor %}
+    </select>
+
+    <script>
+
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [key, value] = cookie.trim().split('=');
+                if (key === 'csrftoken') {
+                    return decodeURIComponent(value);
+                }
+            }
+            return null;
+        }
+
+        function getCoursesFilter(){
+            const departure = $('#departure').val()
+            const destination = $('#destination').val()
+            const driverGender = $('#gender-driver').val()
+            const timeForDeparture = $('#time-for-departure').val()
+            const grade = $('#grade').val()
+            const maxPrice = $('#max-price').val()
+
+            let getCoursesFetch = "{{get_courses_url}}"
+            const csrfToken = getCSRFToken();
+
+            fetch(getCoursesFetch, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    departure: departure,
+                    destination: destination,
+                    driverGender: driverGender,
+                    timeForDeparture: timeForDeparture,
+                    grade: grade,
+                    maxPrice: maxPrice
+                })
+            })
+            .then((response)=>{
+                return response.json()
+            })
+            .then((response)=>{
+                console.log(response)
+            })
+        }
+
+        $('#departure').on('change', getCoursesFilter)
+        $('#destination').on('change', getCoursesFilter)
+        $('#gender-driver').on('change', getCoursesFilter)
+        $('#time-for-departure').on('change', getCoursesFilter)
+        $('#grade').on('change', getCoursesFilter)
+        $('#max-price').on('change', getCoursesFilter)
+        
+    </script>
+</body>
+</html>
