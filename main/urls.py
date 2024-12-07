@@ -23,7 +23,7 @@ from django.contrib import admin
 from django.urls import (
     path,
     include,
-)  # include pozwala na włączenie URL z innych aplikacji
+)
 
 urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),

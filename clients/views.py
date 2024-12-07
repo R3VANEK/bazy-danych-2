@@ -11,10 +11,10 @@ from drivers.models import Course
 from planets.models import Planet
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 import json
 
 
-# Widok logowania klienta
 def client_login(request):
     is_error = False
     if request.method == "POST":
@@ -33,6 +33,7 @@ def client_login(request):
     return render(request, "login.html", {"form": form, "is_error": is_error})
 
 
+@login_required
 def client_home(request):
     return render(
         request,
