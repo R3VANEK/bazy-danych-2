@@ -18,16 +18,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-
 from django.contrib import admin
-from django.urls import (
-    path,
-    include,
-)  # include pozwala na włączenie URL z innych aplikacji
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
-    path("__reload__/", include("django_browser_reload.urls")),
-    path("admin/", admin.site.urls),
-    path("clients/", include("clients.urls")),
-    path("", include("clients.urls")),
+   path("__reload__/", include("django_browser_reload.urls")),
+   path("admin/", admin.site.urls),
+
+
+
+
+   path("", include("clients.urls")),
+
+
+   path("login/", auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+   path("logout/", auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),
+
+
 ]
