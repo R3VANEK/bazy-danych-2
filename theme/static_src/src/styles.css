@@ -20,3 +20,24 @@
 .button{
     @apply w-full rounded-3xl p-3 text-center
 }
+
+.input{
+    @apply bg-transparent border-none text-dark-grey placeholder:text-dark-grey outline-none focus:outline-none focus:ring-0 focus:border-none;
+}
+
+
+.select-input{
+
+    @apply bg-transparent text-dark-grey border-transparent border-b-dark-grey border-b-4 focus:outline-none focus:ring-0 hover:cursor-text;
+}
+
+
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar-hide {
+    scrollbar-width: none;
+}
