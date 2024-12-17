@@ -1,36 +1,182 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <title>Document</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://kit.fontawesome.com/5628e1606a.js" crossorigin="anonymous"></script>
+    <title>Orbit Express</title>
+    {% tailwind_css %}
+    <style>
+
+        
+    </style>
 </head>
-<body>
-    <select name="departure" id="departure">
-        {% for planet in planets %}
-            <option value="{{planet.id}}">{{planet.name}}</option>
-        {% endfor %}
-    </select>
+<body class="bg-[#000] flex flex-col items-center justify-center h-full">
 
-    <input type="datetime-local" id="time-for-departure"/>
+  
+    <div class="w-screen flex flex-row p-5 h-[15vh] z-20">
+        <div class="flex flex-row items-center">
+            <i class="fa-solid fa-rocket text-cosmic-purple text-8xl"></i>
+            <h1 class="text-6xl text-white font-bold ml-4">Orbit Express</h1>
+        </div>
 
-    <input type="number" id="grade"/>
-    <input type="number" id="max-price"/>
+        <div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-1/4 transition duration-150 ease-out hover:ease-in overflow-visible">
+            <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
+                <span class="text-white text-2xl ml-5">&lt;&lt;</span>
+            </div>
+        </div>
+    </div>
 
-    <select name="gender-driver" id="gender-driver">
-        <option value="false">Female</option>
-        <option value="true">Male</option>
-        <option value="">Either</option>
-    </select>
+    <div class="w-[75vw] h-[85vh] mt-0 z-10 ">
 
-    <select name="destination" id="destination">
-        {% for planet in planets %}
-            <option value="{{planet.id}}">{{planet.name}}</option>
-        {% endfor %}
-    </select>
+        <div class="w-full h-auto flex flex-col  mt-24"> 
+            <div class="flex flex-row justify-start items-start flex-wrap w-full gap-3 text-2xl font-bold">
+                <select name="destination" id="destination" class="select-input">
+                    <option selected value="">Pick destination</option>
+                    {% for planet in planets %}
+                        <option value="{{planet.id}}">{{planet.name}}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="border-b-4 border-dark-grey">
+                    <input type="text" id="time-for-departure" class="input" placeholder="When you depart?"/>
+                    <i class="fa-regular fa-calendar text-dark-grey text-xl"></i>
+                </div>
+
+                <div class="border-b-4 border-dark-grey">
+                    <input type="number" id="grade" class="input" placeholder="Grade"/>
+                </div>
+
+                <div class="border-b-4 border-dark-grey">
+                    <input type="number" id="max-price" class="input" placeholder="Max price"/>
+                </div>
+
+                <select name="gender-driver" id="gender-driver" class="select-input">
+                    <option value="false">Female</option>
+                    <option value="true">Male</option>
+                    <option value="" selected>Either</option>
+                </select>
+
+                <select name="departure" id="departure" class="select-input">
+                    {% for planet in planets %}
+                        <option value="{{planet.id}}">{{planet.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="w-full bg-warning max-h-[60vh] mt-6 flex flex-row gap-2 flex-wrap overflow-y-auto">
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+            <div class="w-1/5 h-[100px] bg-danger"></div>
+
+        </div>
+
+    </div>
+        
+    <!-- 
+
+    <div class="w-3/4 h-auto flex flex-col bg-danger mt-24"> 
+        <div class="flex flex-row justify-start items-start flex-wrap w-full gap-3 text-2xl font-bold">
+            <select name="destination" id="destination" class="select-input">
+                <option selected value="">Pick destination</option>
+                {% for planet in planets %}
+                    <option value="{{planet.id}}">{{planet.name}}</option>
+                {% endfor %}
+            </select>
+
+            <div class="border-b-4 border-dark-grey">
+                <input type="text" id="time-for-departure" class="input" placeholder="When you depart?"/>
+                <i class="fa-regular fa-calendar text-dark-grey text-xl"></i>
+            </div>
+
+            <div class="border-b-4 border-dark-grey">
+                <input type="number" id="grade" class="input" placeholder="Grade"/>
+            </div>
+
+            <div class="border-b-4 border-dark-grey">
+                <input type="number" id="max-price" class="input" placeholder="Max price"/>
+            </div>
+
+            <select name="gender-driver" id="gender-driver" class="select-input">
+                <option value="false">Female</option>
+                <option value="true">Male</option>
+                <option value="" selected>Either</option>
+            </select>
+
+            <select name="departure" id="departure" class="select-input">
+                {% for planet in planets %}
+                    <option value="{{planet.id}}">{{planet.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="w-[50vw] h-[40vh] bg-warning flex-none">
+        bla
+    </div> -->
+
+    <div class="fixed w-full h-auto z-0 bottom-0 left-0">
+        <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
+    </div>
+
+    
+
+    <div class="fixed w-full h-auto z-0 bottom-0 left-0">
+        <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
+    </div>
+    
+
+    
+
+    
 
     <script>
+
+         $(function() {
+            $( "#time-for-departure" ).datepicker();
+        });
 
         function getCSRFToken() {
             const cookies = document.cookie.split(';');
