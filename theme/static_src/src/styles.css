@@ -32,6 +32,26 @@
 }
 
 
+.scrollbar-main::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+.scrollbar-main::-webkit-scrollbar-track {
+  background: #3E3E3E; 
+
+   border-radius:20px;
+}
+ 
+/* Handle */
+.scrollbar-main::-webkit-scrollbar-thumb {
+  background: #0E47FF; 
+  height:20px;
+  border-radius:20px;
+}
+
+
+
 
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -40,4 +60,7 @@
 /* Hide scrollbar for Firefox */
 .scrollbar-hide {
     scrollbar-width: none;
+}
+.travel-card{
+    @apply w-[23rem] h-[15rem] overflow-visible relative bg-dark-grey  flex flex-col justify-start items-start p-6 text-card-grey-100 text-xl mt-6 mr-10 ml-4;
 }
