@@ -24,9 +24,43 @@
             <h1 class="text-6xl text-white font-bold ml-4">Orbit Express</h1>
         </div>
 
-        <div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-1/4 transition duration-150 ease-out hover:ease-in overflow-visible">
+        <div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-[1/6] transition duration-500 ease-in-out hover:ease-in-out overflow-visible">
             <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
                 <span class="text-white text-2xl ml-5">&lt;&lt;</span>
+            </div>
+
+
+            <div class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
+
+                <div class="travel-card !text-2xl">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-earth-europe"></i>
+                        <p class="ml-4">Alpha centauri 1</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-calendar"></i>
+                        <p class="ml-4">26.09.2024r</p>
+                    </div>
+
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <p class="ml-4">2000 TIX</p>
+                    </div>
+
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-circle"></i>
+                        <p class="ml-4">Not paid</p>
+                    </div>
+                    
+                    <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+                </div>
+
+               
+
+
             </div>
         </div>
     </div>
@@ -69,113 +103,59 @@
             </div>
         </div>
 
-        <div class="w-full bg-warning max-h-[60vh] mt-6 flex flex-row gap-2 flex-wrap overflow-y-auto">
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
-            <div class="w-1/5 h-[100px] bg-danger"></div>
+        <div class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
+
+            <div class="travel-card">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-user text-3xl"></i>
+                    <p class="text-4xl ml-4">John doe</p>
+                </div>
+
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-star"></i>
+                    <p class="ml-4">4.5 / 5</p>
+                </div>
+
+
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-clock"></i>
+                    <p class="ml-4">36 hours</p>
+                </div>
+
+
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-person"></i>
+                    <p class="ml-4">3 more passengers</p>
+                </div>
+                
+                <div class="absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer">2000 TIX</div>
+
+            </div>
+
+            
 
         </div>
 
     </div>
         
-    <!-- 
-
-    <div class="w-3/4 h-auto flex flex-col bg-danger mt-24"> 
-        <div class="flex flex-row justify-start items-start flex-wrap w-full gap-3 text-2xl font-bold">
-            <select name="destination" id="destination" class="select-input">
-                <option selected value="">Pick destination</option>
-                {% for planet in planets %}
-                    <option value="{{planet.id}}">{{planet.name}}</option>
-                {% endfor %}
-            </select>
-
-            <div class="border-b-4 border-dark-grey">
-                <input type="text" id="time-for-departure" class="input" placeholder="When you depart?"/>
-                <i class="fa-regular fa-calendar text-dark-grey text-xl"></i>
-            </div>
-
-            <div class="border-b-4 border-dark-grey">
-                <input type="number" id="grade" class="input" placeholder="Grade"/>
-            </div>
-
-            <div class="border-b-4 border-dark-grey">
-                <input type="number" id="max-price" class="input" placeholder="Max price"/>
-            </div>
-
-            <select name="gender-driver" id="gender-driver" class="select-input">
-                <option value="false">Female</option>
-                <option value="true">Male</option>
-                <option value="" selected>Either</option>
-            </select>
-
-            <select name="departure" id="departure" class="select-input">
-                {% for planet in planets %}
-                    <option value="{{planet.id}}">{{planet.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-
-    <div class="w-[50vw] h-[40vh] bg-warning flex-none">
-        bla
-    </div> -->
+   
 
     <div class="fixed w-full h-auto z-0 bottom-0 left-0">
         <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
     </div>
-
-    
-
-    <div class="fixed w-full h-auto z-0 bottom-0 left-0">
-        <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
-    </div>
-    
-
-    
 
     
 
     <script>
 
          $(function() {
-            $( "#time-for-departure" ).datepicker();
+            $( "#time-for-departure" ).datepicker({
+                beforeShow: function(){
+                    setTimeout(function(){
+                        $('.ui-datepicker').css('z-index', 99999999999999);
+                    }, 0);
+                }
+            });
         });
 
         function getCSRFToken() {
