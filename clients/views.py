@@ -16,6 +16,7 @@ from datetime import datetime
 from django.db.models import Avg, Count, F, Subquery, OuterRef
 from drivers.models import Driver, Vehicle
 from rides.models import Ride
+from .utils import get_courses
 
 
 # Widok logowania klienta
@@ -39,46 +40,44 @@ def client_login(request):
 
 def client_home(request):
 
-    courses = (
-        Course.objects.prefetch_related(
-            "vehicle", "vehicle__driver", "vehicle__driver__user"
-        )
-        .select_related("destination")
-        .annotate(destination_name=F("destination__name"))
-        .annotate(
-            driver_grade=Subquery(
-                Ride.objects.filter(
-                    course__vehicle__driver_id=OuterRef("vehicle__driver_id")
-                )
-                .values("course__vehicle__driver_id")
-                .annotate(avg_grade=Avg("grade"))
-                .values("avg_grade")[:1]
-            )
-        )
-        .annotate(taken_seats=Count("rides"))
-        .annotate(max_seats=F("vehicle__max_passengers"))
-        .filter(start_date__gt=datetime.now(), taken_seats__lt=F("max_seats"))
-        .order_by("start_date")
-    )
+    if not request.user.is_authenticated or not getattr(request.user, "client", None):
+        return reverse_lazy("driver_home")
 
+    all_courses = get_courses()
+
+    my_rides = (
+        Ride.objects.select_related("departure")
+        .prefetch_related("course")
+        .annotate(destination_name=F("course__destination__name"))
+        .annotate(departure_name=F("departure__name"))
+        .filter(client_id=request.user.client.id)
+    )
     return render(
         request,
         "clients/main.html",
         {
-            "get_courses_url": f"{request.build_absolute_uri()}clients/courses",
+            "get_courses_url": f"{request.build_absolute_uri()}courses",
             "planets": list(Planet.objects.all().distinct().values()),
-            "courses": list(courses),
+            "courses": list(all_courses),
+            "my_rides": list(my_rides),
         },
     )
 
 
 @csrf_exempt
 def courses_rest_view(request):
-    # TODO: zabezpiecz
+
     body = json.loads(request.body)
-    departure_id = body.get("departure")
-    courses = list(Course.objects.values())
-    return JsonResponse(courses, safe=False)
+
+    filtered_courses = get_courses(
+        destination_id=body.get("destination"),
+        driver_grade=body.get("grade"),
+        max_price=body.get("maxPrice"),
+        time_for_departure=body.get("timeForDeparture"),
+        driver_is_male=body.get("driverGender"),
+    )
+
+    return JsonResponse(list(filtered_courses.values()), safe=False)
 
 
 class ClientRegistrationView(CreateView):

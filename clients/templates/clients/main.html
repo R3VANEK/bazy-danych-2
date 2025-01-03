@@ -32,31 +32,39 @@
 
             <div class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
 
-                <div class="travel-card !text-2xl">
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-earth-europe"></i>
-                        <p class="ml-4">Alpha centauri 1</p>
+
+                {% for ride in my_rides %}
+                    <div class="travel-card !text-2xl">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-earth-europe"></i>
+                            <p class="ml-4">to {{ride.destination_name}}</p>
+                        </div>
+
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-earth-europe"></i>
+                            <p class="ml-4">from {{ride.departure_name}}</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-calendar"></i>
+                            <p class="ml-4">{{ride.course.start_date}}</p>
+                        </div>
+
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <p class="ml-4">{{ride.course.price}} TIX</p>
+                        </div>
+
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-circle"></i>
+                            <p class="ml-4">Not paid</p>
+                        </div>
+                        
+                        <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
                     </div>
-
-                    <div class="flex items-center mt-2">
-                        <i class="fa-solid fa-calendar"></i>
-                        <p class="ml-4">26.09.2024r</p>
-                    </div>
-
-
-                    <div class="flex items-center mt-2">
-                        <i class="fa-solid fa-dollar-sign"></i>
-                        <p class="ml-4">2000 TIX</p>
-                    </div>
-
-
-                    <div class="flex items-center mt-2">
-                        <i class="fa-solid fa-circle"></i>
-                        <p class="ml-4">Not paid</p>
-                    </div>
-                    
-                    <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
-                </div>
+                {% endfor%}
 
                
 
@@ -92,25 +100,20 @@
                 <select name="gender-driver" id="gender-driver" class="select-input">
                     <option value="false">Female</option>
                     <option value="true">Male</option>
-                    <option value="" selected>Either</option>
+                    <option value="" selected>Pick gender of driver</option>
                 </select>
 
-                <select name="departure" id="departure" class="select-input">
-                    {% for planet in planets %}
-                        <option value="{{planet.id}}">{{planet.name}}</option>
-                    {% endfor %}
-                </select>
             </div>
         </div>
 
-        <div class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
+        <div id="courses-holder" class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
             
 
             {% for course in courses %}
                 <div class="travel-card">
                     <div class="flex items-center">
                         <i class="fa-solid fa-user text-3xl"></i>
-                        <p class="text-4xl ml-4">{{course.vehicle.driver.full_name}}</p>
+                        <p class="text-4xl ml-4">{{course.driver_name}}</p>
                     </div>
 
                     <div class="flex items-center mt-1">
@@ -131,9 +134,8 @@
 
                     <div class="flex items-center mt-1">
                         <i class="fa-solid fa-circle"></i>
-                        <p class="ml-4">{{course.destination_name}}</p>
+                        <p class="ml-4">to {{course.destination_name}}</p>
                     </div>
-
 
                     <div class="flex items-center mt-1">
                         <i class="fa-solid fa-person"></i>
@@ -171,6 +173,14 @@
             });
         });
 
+        function debounce(func, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func(...args), delay);
+            };
+        }
+
         function getCSRFToken() {
             const cookies = document.cookie.split(';');
             for (let cookie of cookies) {
@@ -182,46 +192,95 @@
             return null;
         }
 
-        function getCoursesFilter(){
-            const departure = $('#departure').val()
-            const destination = $('#destination').val()
-            const driverGender = $('#gender-driver').val()
-            const timeForDeparture = $('#time-for-departure').val()
-            const grade = $('#grade').val()
-            const maxPrice = $('#max-price').val()
+        function generateCourseHTML(courses) {
+            return courses.map(course => {
+                return `
+                    <div class="travel-card">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-user text-3xl"></i>
+                            <p class="text-4xl ml-4">${course.driver_name}</p>
+                        </div>
 
-            let getCoursesFetch = "{{get_courses_url}}"
-            const csrfToken = getCSRFToken();
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-star"></i>
+                            <p class="ml-4">${parseFloat(course.driver_grade).toFixed(2)} / 5.00</p>
+                        </div>
 
-            fetch(getCoursesFetch, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    departure: departure,
-                    destination: destination,
-                    driverGender: driverGender,
-                    timeForDeparture: timeForDeparture,
-                    grade: grade,
-                    maxPrice: maxPrice
-                })
-            })
-            .then((response)=>{
-                return response.json()
-            })
-            .then((response)=>{
-                console.log(response)
-            })
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-clock"></i>
+                            <p class="ml-4">${new Date(course.start_date).toLocaleDateString('en-GB')}</p>
+                        </div>
+
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-clock"></i>
+                            <p class="ml-4">${course.duration_days} days</p>
+                        </div>
+
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-circle"></i>
+                            <p class="ml-4">to ${course.destination_name}</p>
+                        </div>
+
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-person"></i>
+                            <p class="ml-4">${course.taken_seats} / ${course.max_seats} seats left</p>
+                        </div>
+
+                        <div class="absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer">${course.price} TIX</div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        $('#departure').on('change', getCoursesFilter)
-        $('#destination').on('change', getCoursesFilter)
-        $('#gender-driver').on('change', getCoursesFilter)
-        $('#time-for-departure').on('change', getCoursesFilter)
-        $('#grade').on('change', getCoursesFilter)
-        $('#max-price').on('change', getCoursesFilter)
+    function updateCourseList(courses) {
+        const coursesContainer = $('#courses-holder')
+        alert("dupa")
+        console.log(courses)
+        const newCoursesHTML = generateCourseHTML(courses);
+        console.log(newCoursesHTML)
+        coursesContainer.html(newCoursesHTML);
+    }
+
+    function getCoursesFilter() {
+        const destination = $('#destination').val();
+        const driverGender = $('#gender-driver').val();
+        const timeForDeparture = $('#time-for-departure').val();
+        const grade = $('#grade').val();
+        const maxPrice = $('#max-price').val();
+
+        let getCoursesFetch = "{{get_courses_url}}";
+        const csrfToken = getCSRFToken();
+
+        fetch(getCoursesFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                destination: destination,
+                driverGender: driverGender,
+                timeForDeparture: timeForDeparture,
+                grade: grade,
+                maxPrice: maxPrice
+            })
+        })
+        .then((response) => response.json())
+        .then((response) => {
+            console.log(response);
+            updateCourseList(response);
+        });
+    }
+
+    const debouncedGetCoursesFilter = debounce(getCoursesFilter, 500);
+
+    $('#destination').on('change', debouncedGetCoursesFilter);
+    $('#gender-driver').on('change', debouncedGetCoursesFilter);
+    $('#time-for-departure').on('change', debouncedGetCoursesFilter);
+    $('#grade').on('change', debouncedGetCoursesFilter);
+    $('#max-price').on('change', debouncedGetCoursesFilter);
+
+
         
     </script>
 </body>

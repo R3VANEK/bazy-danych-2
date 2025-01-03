@@ -116,7 +116,7 @@ class Command(BaseCommand):
                                     "2025-02-28 14:30:00", "%Y-%m-%d %H:%M:%S"
                                 ),
                             ),
-                            duration_days=fake.random_int(min=5, max=100),
+                            duration_days=fake.random_int(min=5, max=20),
                         )
                     )
 

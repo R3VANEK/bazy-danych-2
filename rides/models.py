@@ -31,4 +31,6 @@ class Ride(models.Model):
         validators=[MaxValueValidator(10), MinValueValidator(0)], default=5
     )
 
+    is_accepted = models.BooleanField(default=False)
+
     is_paid = models.BooleanField(default=False)
