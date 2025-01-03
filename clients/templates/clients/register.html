@@ -17,7 +17,7 @@
 
         <h1 class="text-8xl">Orbit Express</h1>
         <h2 class="text-2xl font-light mt-5 mb-12">Connecting You to Where You Want to Be</h2>
-        <a href="#" class="mt-3 mb-3 text-cosmic-purple text-light underline">Not a client? register as driver</a>
+        <a href="{% url 'driver_register' %}" class="mt-3 mb-3 text-cosmic-purple text-light underline">Not a client? register as driver</a>
 
          {% if is_error == True %}
             <p class="text-danger">Nie udało się zarejestrować</p>

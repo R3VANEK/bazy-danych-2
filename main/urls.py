@@ -17,24 +17,22 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-
-from django.contrib import admin
-from django.urls import path, include
+from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
-   path("__reload__/", include("django_browser_reload.urls")),
-   path("admin/", admin.site.urls),
+    path("__reload__/", include("django_browser_reload.urls")),
+    path("admin/", admin.site.urls),
 
+    path("", lambda request: redirect("client_home")),
+    path("clients/", include("clients.urls")),
+    path("drivers/", include("drivers.urls")),
 
+    path("logout/", auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),
 
-
-   path("", include("clients.urls")),
-
-
-   path("login/", auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-   path("logout/", auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),
+   path("login/", lambda request: redirect("client_login")),
+   
 
 
 ]

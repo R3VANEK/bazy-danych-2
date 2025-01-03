@@ -16,27 +16,14 @@ class Driver(models.Model):
     license_expiration = models.DateTimeField()
     is_male = models.BooleanField()
 
-    def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} | {self.work_start} | {self.gender}"
-
-
-class Course(models.Model):
-
-    class Meta:
-        db_table = "courses"
-        verbose_name = "course"
-        verbose_name_plural = "courses"
-
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="courses")
-    destination = models.ForeignKey(Planet, on_delete=models.CASCADE, related_name="+")
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    start_date = models.DateTimeField(default=datetime.now)
-
-    # represents number of hours
-    duration_days = models.PositiveIntegerField()
+    @property
+    def full_name(self):
+        return f"{self.user.first_name} {self.user.last_name}" 
 
     def __str__(self):
-        return f"course of {self.driver} to {self.destination} | price: {self.price} | start: {self.start_date} | price: {self.price}"
+        return f"{self.user.first_name} {self.user.last_name} | {self.is_male}"
+
+
 
 
 class Vehicle(models.Model):
@@ -51,3 +38,22 @@ class Vehicle(models.Model):
     name = models.CharField(max_length=255)
     registration_number = models.CharField(max_length=50, unique=True)
     max_passengers = models.PositiveIntegerField()
+
+
+class Course(models.Model):
+
+    class Meta:
+        db_table = "courses"
+        verbose_name = "course"
+        verbose_name_plural = "courses"
+
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name="courses")
+    destination = models.ForeignKey(Planet, on_delete=models.CASCADE, related_name="+")
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateTimeField(default=datetime.now)
+
+    # represents number of hours
+    duration_days = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"course of {self.driver} to {self.destination} | price: {self.price} | start: {self.start_date} | price: {self.price}"

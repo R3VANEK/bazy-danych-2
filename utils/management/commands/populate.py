@@ -40,9 +40,8 @@ class Command(BaseCommand):
 
             planet_list = []
             courses_list = []
-            vehicles_list = []
+
             clients_list = []
-            users_list = []
 
             for planet in planet_name_list:
                 planet_list.append(
@@ -64,7 +63,9 @@ class Command(BaseCommand):
                 user.save()
 
                 clients_list.append(
-                    Client.objects.create(phone_number=fake.phone_number(), user=user)
+                    Client.objects.create(
+                        phone_number=fake.phone_number()[:12], user=user
+                    )
                 )
 
             for _ in range(drivers_count):
@@ -85,7 +86,7 @@ class Command(BaseCommand):
                     is_male=fake.boolean(),
                     user=user,
                 )
-
+                vehicles_list = []
                 rand_vehicle_count = random.randint(1, 5)
                 for _ in range(rand_vehicle_count):
                     vehicles_list.append(
@@ -102,7 +103,9 @@ class Command(BaseCommand):
                 for _ in range(rand_courses_count):
                     courses_list.append(
                         Course.objects.create(
-                            driver=driver,
+                            vehicle=vehicles_list[
+                                random.randint(0, len(vehicles_list) - 1)
+                            ],
                             destination=planet_list[
                                 random.randint(0, len(planet_list) - 1)
                             ],
@@ -133,6 +136,6 @@ class Command(BaseCommand):
                     departure=departure_list[
                         random.randint(0, len(departure_list) - 1)
                     ],
-                    grade=random.randint(0, 10),
+                    grade=random.randint(0, 5),
                     is_paid=fake.boolean(),
                 ).save()

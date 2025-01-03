@@ -104,33 +104,46 @@
         </div>
 
         <div class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
+            
 
-            <div class="travel-card">
-                <div class="flex items-center">
-                    <i class="fa-solid fa-user text-3xl"></i>
-                    <p class="text-4xl ml-4">John doe</p>
+            {% for course in courses %}
+                <div class="travel-card">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-user text-3xl"></i>
+                        <p class="text-4xl ml-4">{{course.vehicle.driver.full_name}}</p>
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-star"></i>
+                        <p class="ml-4">{{course.driver_grade|floatformat:2}}/ 5.00</p>
+                    </div>
+
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-clock"></i>
+                        <p class="ml-4">{{course.start_date|date:"d.m.Y"}}</p>
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-clock"></i>
+                        <p class="ml-4">{{course.duration_days}} days</p>
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-circle"></i>
+                        <p class="ml-4">{{course.destination_name}}</p>
+                    </div>
+
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-person"></i>
+                        <p class="ml-4">{{course.taken_seats}}/{{course.max_seats}} seats left</p>
+                    </div>
+                    
+                    <div class="absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer">{{course.price}} TIX</div>
+
                 </div>
-
-                <div class="flex items-center mt-1">
-                    <i class="fa-solid fa-star"></i>
-                    <p class="ml-4">4.5 / 5</p>
-                </div>
-
-
-                <div class="flex items-center mt-1">
-                    <i class="fa-solid fa-clock"></i>
-                    <p class="ml-4">36 hours</p>
-                </div>
-
-
-                <div class="flex items-center mt-1">
-                    <i class="fa-solid fa-person"></i>
-                    <p class="ml-4">3 more passengers</p>
-                </div>
-                
-                <div class="absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer">2000 TIX</div>
-
-            </div>
+            {% endfor %}
 
             
 
