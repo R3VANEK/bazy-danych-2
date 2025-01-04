@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="https://kit.fontawesome.com/5628e1606a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <title>Orbit Express</title>
     {% tailwind_css %}
     <style>
@@ -17,7 +18,6 @@
 </head>
 <body class="bg-[#000] flex flex-col items-center justify-center h-full">
 
-  
     <div class="w-screen flex flex-row p-5 h-[15vh] z-20">
         <div class="flex flex-row items-center">
             <i class="fa-solid fa-rocket text-cosmic-purple text-8xl"></i>
@@ -121,7 +121,6 @@
                         <p class="ml-4">{{course.driver_grade|floatformat:2}}/ 5.00</p>
                     </div>
 
-
                     <div class="flex items-center mt-1">
                         <i class="fa-solid fa-clock"></i>
                         <p class="ml-4">{{course.start_date|date:"d.m.Y"}}</p>
@@ -142,7 +141,7 @@
                         <p class="ml-4">{{course.taken_seats}}/{{course.max_seats}} seats left</p>
                     </div>
                     
-                    <div class="absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer">{{course.price}} TIX</div>
+                    <div class="price-click absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer" data-course-id="{{course.id}}">{{course.price}} TIX</div>
 
                 </div>
             {% endfor %}
@@ -152,18 +151,59 @@
         </div>
 
     </div>
+
+    <div id="course-modal" class="fixed inset-0 bg-base-black bg-opacity-70 hidden flex justify-center items-center z-30">
+        <div class="bg-base-black text-white border-cosmic-purple border-2 p-6 rounded-xl max-w-md w-full relative">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold">Select your departure planet</h2>
+            </div>
+
+            <div class="mb-4">
+                <select id="planet-select" class="select-input w-full mt-3 mb-3">
+                    <option selected>Select Planet</option>
+                    {% for planet in planets %}
+                        <option value="{{planet.id}}">{{planet.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="cancel-modal" class="text-red-500">Cancel</button>
+                <button id="confirm-modal" class="bg-cosmic-purple text-white p-2 rounded">Confirm</button>
+            </div>
+        </div>
+    </div>
         
    
-
     <div class="fixed w-full h-auto z-0 bottom-0 left-0">
         <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
     </div>
 
-    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
+        let courseId = null
+        $(document).on('click', '.price-click', function() {
+            courseId = $(this).data('course-id');
+            $('#course-modal').removeClass('hidden');
+            $('body').addClass('blurred');
+        });
 
-         $(function() {
+        $('#cancel-modal').on('click', function() {
+            $('#course-modal').addClass('hidden');
+            $('body').removeClass('blurred');
+        });
+
+        $('#confirm-modal').on('click', bookRideRequest);
+
+        $('#course-modal').on('click', function(e) {
+            if ($(e.target).is('#course-modal')) {
+                $('#course-modal').addClass('hidden');
+                $('body').removeClass('blurred');
+            }
+        });
+
+        $(function() {
             $( "#time-for-departure" ).datepicker({
                 beforeShow: function(){
                     setTimeout(function(){
@@ -226,7 +266,7 @@
                             <p class="ml-4">${course.taken_seats} / ${course.max_seats} seats left</p>
                         </div>
 
-                        <div class="absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer">${course.price} TIX</div>
+                        <div class="price-click absolute -bottom-4 -right-4 bg-cosmic-purple p-6 text-white font-thin text-3xl cursor-pointer" data-course-id="${course.id}">${course.price} TIX</div>
                     </div>
                 `;
             }).join('');
@@ -234,19 +274,57 @@
 
     function updateCourseList(courses) {
         const coursesContainer = $('#courses-holder')
-        alert("dupa")
         console.log(courses)
         const newCoursesHTML = generateCourseHTML(courses);
         console.log(newCoursesHTML)
         coursesContainer.html(newCoursesHTML);
     }
 
-    function getCoursesFilter() {
-        const destination = $('#destination').val();
-        const driverGender = $('#gender-driver').val();
-        const timeForDeparture = $('#time-for-departure').val();
-        const grade = $('#grade').val();
-        const maxPrice = $('#max-price').val();
+    function bookRideRequest(){
+        let getCoursesFetch = "{{book_ride_url}}";
+        const csrfToken = getCSRFToken();
+
+        const selectedPlanetId = $('#planet-select').val();
+
+        if(!selectedPlanetId || !courseId){
+            alert("Please select departure planet")
+            return
+        }
+
+        fetch(getCoursesFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                departureId: selectedPlanetId,
+                courseId: courseId
+            })
+        })
+        .then((response) => response.json())
+        .then((response) => {
+            Toastify({
+                    text: response.text,
+                    duration:3000,
+                    style: {
+                        background: (response.type == "success") ? "green" : "red",
+                    }
+                }).showToast()
+
+            getCoursesFilter(true)
+            $('#course-modal').addClass('hidden');
+            $('body').removeClass('blurred');
+        });
+    }
+
+    function getCoursesFilter(pure_refresh = false) {
+        const destination = (!pure_refresh) ? $('#destination').val() : null;
+        const driverGender = (!pure_refresh) ? $('#gender-driver').val() : null;
+        const timeForDeparture = (!pure_refresh) ? $('#time-for-departure').val() : null;
+        const grade = (!pure_refresh) ? $('#grade').val() : null;
+        const maxPrice = (!pure_refresh) ? $('#max-price').val() : null;
+
 
         let getCoursesFetch = "{{get_courses_url}}";
         const csrfToken = getCSRFToken();

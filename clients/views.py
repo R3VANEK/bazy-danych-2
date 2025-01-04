@@ -7,14 +7,12 @@ from .forms import (
     ClientRegistrationForm,
 )
 from django.http import HttpResponse, JsonResponse
-from drivers.models import Course
 from planets.models import Planet
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
 from datetime import datetime
-from django.db.models import Avg, Count, F, Subquery, OuterRef
-from drivers.models import Driver, Vehicle
+from django.db.models import F
 from rides.models import Ride
 from .utils import get_courses
 
@@ -43,7 +41,7 @@ def client_home(request):
     if not request.user.is_authenticated or not getattr(request.user, "client", None):
         return reverse_lazy("driver_home")
 
-    all_courses = get_courses()
+    all_courses = get_courses(client=request.user.client)
 
     my_rides = (
         Ride.objects.select_related("departure")
@@ -57,10 +55,50 @@ def client_home(request):
         "clients/main.html",
         {
             "get_courses_url": f"{request.build_absolute_uri()}courses",
+            "book_ride_url": f"{request.build_absolute_uri()}ride/book",
             "planets": list(Planet.objects.all().distinct().values()),
             "courses": list(all_courses),
             "my_rides": list(my_rides),
         },
+    )
+
+
+@csrf_exempt
+def book_ride_endpoint(request):
+
+    body = json.loads(request.body)
+
+    departure_id = int(body.get("departureId"))
+    course_id = int(body.get("courseId"))
+
+    try:
+        _, created = Ride.objects.get_or_create(
+            course_id=course_id,
+            departure_id=departure_id,
+            client_id=request.user.client.id,
+        )
+    except Exception:
+        return JsonResponse(
+            {
+                "type": "error",
+                "text": "Some unexpected error occured, please try again",
+            },
+            safe=False,
+        )
+
+    if not created:
+        type = "error"
+        text = "You already booked this ride!"
+    else:
+        type = "success"
+        text = "Successfully booked a ride!"
+
+    return JsonResponse(
+        {
+            "type": type,
+            "text": text,
+        },
+        safe=False,
     )
 
 
@@ -70,6 +108,7 @@ def courses_rest_view(request):
     body = json.loads(request.body)
 
     filtered_courses = get_courses(
+        client=request.user.client,
         destination_id=body.get("destination"),
         driver_grade=body.get("grade"),
         max_price=body.get("maxPrice"),

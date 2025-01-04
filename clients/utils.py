@@ -5,9 +5,11 @@ from rides.models import Ride
 from django.db.models import Subquery, OuterRef, Avg, F, QuerySet, Count, Q, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
+from .models import Client
 
 
 def get_courses(
+    client: Client,
     destination_id: Optional[int] = None,
     driver_grade: Optional[int] = None,
     max_price: Optional[float] = None,
@@ -41,15 +43,26 @@ def get_courses(
                 .values("avg_grade")[:1]
             )
         )
+        .annotate(
+            client_rides=Subquery(
+                Ride.objects.filter(course=OuterRef("pk"))
+                .filter(client_id=client.id)
+                .annotate(rides=Count("*"))
+                .values("rides")[:1]
+            )
+        )
         .annotate(taken_seats=Count("rides"))
         .annotate(max_seats=F("vehicle__max_passengers"))
-        .filter(start_date__gt=now, taken_seats__lt=F("max_seats"))
+        .filter(
+            start_date__gt=now,
+            taken_seats__lt=F("max_seats"),
+            client_rides__isnull=True,
+        )
         .order_by("start_date")
     )
 
     extra_filters = Q()
 
-    # Apply filters dynamically
     if destination_id:
         extra_filters &= Q(destination_id=destination_id)
 
@@ -75,5 +88,4 @@ def get_courses(
     if driver_is_male:
         extra_filters &= Q(vehicle__driver__is_male=bool(driver_is_male))
 
-    # Apply extra filters to the queryset
     return base_courses.filter(extra_filters)

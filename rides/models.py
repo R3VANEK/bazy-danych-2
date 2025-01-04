@@ -18,9 +18,7 @@ class Ride(models.Model):
     course = models.ForeignKey(
         to=Course, on_delete=models.SET_NULL, related_name="rides", null=True
     )
-    vehicle = models.ForeignKey(
-        to=Vehicle, on_delete=models.SET_NULL, related_name="rides", null=True
-    )
+
     client = models.ForeignKey(
         to=Client, on_delete=models.SET_NULL, related_name="rides", null=True
     )

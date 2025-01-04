@@ -52,7 +52,6 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateTimeField(default=datetime.now)
 
-    # represents number of hours
     duration_days = models.PositiveIntegerField()
 
     def __str__(self):

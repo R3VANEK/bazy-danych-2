@@ -131,7 +131,6 @@ class Command(BaseCommand):
                 ]
                 Ride(
                     course=random_course,
-                    vehicle=vehicles_list[random.randint(0, len(vehicles_list) - 1)],
                     client=clients_list[random.randint(0, len(clients_list) - 1)],
                     departure=departure_list[
                         random.randint(0, len(departure_list) - 1)
