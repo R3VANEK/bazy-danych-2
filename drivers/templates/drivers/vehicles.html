@@ -1,0 +1,234 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://kit.fontawesome.com/5628e1606a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <title>Orbit Express</title>
+    {% tailwind_css %}
+</head>
+<body class="bg-[#000] flex flex-col items-center justify-center h-full">
+
+    <div id="navbar" class="w-screen flex flex-row p-5 h-[15vh] z-20">
+        <div class="flex flex-row items-center">
+            <i class="fa-solid fa-rocket text-cosmic-purple text-8xl"></i>
+            <h1 class="text-6xl text-white font-bold ml-4">Orbit Express</h1>
+        </div>
+
+        <div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-[1/6] transition duration-500 ease-in-out hover:ease-in-out overflow-visible">
+            <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
+                <span class="text-white text-2xl ml-5">&lt;&lt;</span>
+            </div>
+
+            <div class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
+                {% for ride in my_rides %}
+                    <div class="travel-card !text-2xl">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-earth-europe"></i>
+                            <p class="ml-4">to {{ride.destination_name}}</p>
+                        </div>
+
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-earth-europe"></i>
+                            <p class="ml-4">from {{ride.departure_name}}</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-calendar"></i>
+                            <p class="ml-4">{{ride.course.start_date}}</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <p class="ml-4">{{ride.course.price}} TIX</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-circle"></i>
+                            <p class="ml-4">Not paid</p>
+                        </div>
+                        
+                        <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="w-[75vw] h-[85vh] mt-0 z-10 ">
+
+        <div class="w-full h-auto flex flex-col  mt-24"> 
+            <div class="flex flex-row justify-start items-start flex-wrap w-full gap-3 text-2xl font-bold">
+                <a href="#">
+                    <div class="bg-cosmic-purple p-3 rounded-md text-white">Manage your vehicles</div>
+                </a>
+                
+                <a href="#">
+                    <div class="bg-dark-grey p-3 rounded-md text-white">Manage your courses</div>
+                </a>
+
+                <a href="#">
+                    <div class="bg-dark-grey p-3 rounded-md text-white">Manage your rides</div>
+                </a>
+
+                <div id="add" class="rounded-full w-14 h-14 bg-accept cursor-pointer flex justify-center items-center text-white">
+                    <i class="fa-solid fa-add"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="vehicles-holder" class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
+            {% for vehicle in vehicles %}
+                <div class="travel-card !h-[10rem]">
+                    <div class="flex items-center mt-1">
+                        <i class="fa-brands fa-space-awesome"></i>
+                        <p class="ml-4">{{vehicle.name}}</p>
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-fingerprint"></i>
+                        <p class="ml-4">{{vehicle.registration_number}}</p>
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-person"></i>
+                        <p class="ml-4">{{vehicle.max_passengers}} max passengers</p>
+                    </div>
+
+                    <div class="edit-vehicle absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-vehicle-id="{{vehicle.id}}">
+                        <i class="fa-solid fa-edit"></i>
+                    </div>
+
+                    <div class="delete-vehicle absolute -bottom-4 -right-4 bg-danger p-4 text-white font-thin text-xl cursor-pointer" data-vehicle-id="{{vehicle.id}}">
+                        <i class="fa-solid fa-trash"></i>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="fixed w-full h-auto z-0 bottom-0 left-0">
+        <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+        $(document).on('click', '.delete-vehicle', function() {
+            deleteVehicleRequest( $(this).data('vehicle-id'))
+            getVehicleList()
+        });
+
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [key, value] = cookie.trim().split('=');
+                if (key === 'csrftoken') {
+                    return decodeURIComponent(value);
+                }
+            }
+            return null;
+        }
+
+        function generateVehicleHTML(vehicles){
+            return vehicles.map(vehicle => {
+                return `
+                    <div class="travel-card !h-[10rem]">
+                        <div class="flex items-center mt-1">
+                            <i class="fa-brands fa-space-awesome"></i>
+                            <p class="ml-4">${vehicle.name}</p>
+                        </div>
+
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            <p class="ml-4">${vehicle.registration_number}</p>
+                        </div>
+
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-person"></i>
+                            <p class="ml-4">${vehicle.max_passengers} max passengers</p>
+                        </div>
+
+                        <div class="edit-vehicle absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-vehicle-id="${vehicle.id}">
+                            <i class="fa-solid fa-edit"></i>
+                        </div>
+
+                        <div class="delete-vehicle absolute -bottom-4 -right-4 bg-danger p-4 text-white font-thin text-xl cursor-pointer" data-vehicle-id="${vehicle.id}">
+                            <i class="fa-solid fa-trash"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+    function updateVehiclesList(vehicles) {
+        const coursesContainer = $('#vehicles-holder')
+        const newCoursesHTML = generateVehicleHTML(vehicles);
+        coursesContainer.html(newCoursesHTML);
+    }
+
+        function getVehicleList(){
+            
+            const csrfToken = getCSRFToken();
+            const getVehiclesUrl = "{{get_vehicles_url}}"
+
+            fetch(getVehiclesUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({})
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                updateVehiclesList(response)
+            });
+        }
+
+        
+
+        function deleteVehicleRequest(vehicleId){
+            let deleteVehicleUrl = "{{delete_vehicle_url}}";
+            const csrfToken = getCSRFToken();
+
+            if(!vehicleId){
+                Toastify({
+                        text: "Please select vehicle to delete!",
+                        duration:3000,
+                        style: {
+                            background: "red",
+                        }
+                    }).showToast()
+                return
+            }
+
+            fetch(deleteVehicleUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                   id: vehicleId,
+                })
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                Toastify({
+                        text: response.text,
+                        duration:3000,
+                        style: {
+                            background: (response.type == "success") ? "green" : "red",
+                        }
+                    }).showToast()
+            });
+        }
+    </script>
+</body>
+</html>

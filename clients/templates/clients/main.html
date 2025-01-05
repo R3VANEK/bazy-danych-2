@@ -274,9 +274,7 @@
 
     function updateCourseList(courses) {
         const coursesContainer = $('#courses-holder')
-        console.log(courses)
         const newCoursesHTML = generateCourseHTML(courses);
-        console.log(newCoursesHTML)
         coursesContainer.html(newCoursesHTML);
     }
 
@@ -287,7 +285,13 @@
         const selectedPlanetId = $('#planet-select').val();
 
         if(!selectedPlanetId || !courseId){
-            alert("Please select departure planet")
+            Toastify({
+                    text: "Departure planet or course is not selected!",
+                    duration:3000,
+                    style: {
+                        background: "red",
+                    }
+                }).showToast()
             return
         }
 
@@ -345,7 +349,6 @@
         })
         .then((response) => response.json())
         .then((response) => {
-            console.log(response);
             updateCourseList(response);
         });
     }
