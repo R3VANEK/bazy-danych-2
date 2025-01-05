@@ -45,6 +45,9 @@ def driver_vehicles_manage(request):
             "vehicles": list(vehicle_list),
             "delete_vehicle_url": f"{request.build_absolute_uri()}delete",
             "get_vehicles_url": f"{request.build_absolute_uri()}get",
+            "edit_vehicle_url": f"{request.build_absolute_uri()}edit",
+            "get_vehicle_url": f"{request.build_absolute_uri()}get/single",
+            "add_vehicle_url": f"{request.build_absolute_uri()}add",
         },
     )
 
@@ -65,13 +68,27 @@ def driver_rides_manage(request):
 
 @csrf_exempt
 def get_vehicles_endpoint(request):
-    breakpoint()
     if not getattr(request.user, "driver", None):
         return JsonResponse(
             {"type": "error", "text": "You aren't a driver and cannot manage vehicles!"}
         )
 
     vehicle_list = get_vehicles(driver=request.user.driver)
+
+    return JsonResponse(list(vehicle_list.values()), safe=False)
+
+
+@csrf_exempt
+def get_vehicle_endpoint(request):
+    if not getattr(request.user, "driver", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a driver and cannot manage vehicles!"}
+        )
+
+    body = json.loads(request.body)
+    vehicle_list = get_vehicles(
+        driver=request.user.driver, vehicle_id=int(body.get("id"))
+    )
 
     return JsonResponse(list(vehicle_list.values()), safe=False)
 
@@ -104,6 +121,10 @@ def edit_vehicle_endpoint(request):
     vehicle.name = name
     vehicle.max_passengers = max_passengers
     vehicle.save()
+
+    return JsonResponse(
+        {"type": "success", "text": "Edited given vehicle!"}, safe=False
+    )
 
 
 @csrf_exempt
