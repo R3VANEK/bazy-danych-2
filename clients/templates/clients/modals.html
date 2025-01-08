@@ -1,0 +1,21 @@
+<div id="course-modal" class="fixed inset-0 bg-base-black bg-opacity-70 hidden flex justify-center items-center z-30">
+    <div class="bg-base-black text-white border-cosmic-purple border-2 p-6 rounded-xl max-w-md w-full relative">
+        <div class="mb-4">
+            <h2 class="text-xl font-bold">Select your departure planet</h2>
+        </div>
+
+        <div class="mb-4">
+            <select id="planet-select" class="select-input w-full mt-3 mb-3">
+                <option selected>Select Planet</option>
+                {% for planet in planets %}
+                    <option value="{{ planet.id }}">{{ planet.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="flex justify-between">
+            <button id="cancel-modal" class="text-red-500">Cancel</button>
+            <button id="confirm-modal" class="bg-cosmic-purple text-white p-2 rounded">Confirm</button>
+        </div>
+    </div>
+</div>

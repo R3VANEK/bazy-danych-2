@@ -1,0 +1,47 @@
+<div id="add-vehicle-modal" class="fixed inset-0 bg-base-black bg-opacity-70 hidden flex justify-center items-center z-30">
+    <div class="bg-base-black text-white border-cosmic-purple border-2 p-6 rounded-xl max-w-md w-full relative">
+        <div class="mb-4">
+            <h2 class="text-xl font-bold">Add new vehicle</h2>
+        </div>
+
+        <div class="mb-4">
+            <div class="border-b-4 border-dark-grey">
+                <input type="text" id="add-vehicle-name" class="input" placeholder="Name"/>
+            </div>
+            <div class="border-b-4 border-dark-grey">
+                <input type="text" id="add-vehicle-registration-number" class="input" placeholder="Registration number"/>
+            </div>
+            <div class="border-b-4 border-dark-grey">
+                <input type="number" id="add-vehicle-max-passengers" class="input !w-full" placeholder="Max passengers"/>
+            </div>
+        </div>
+
+        <div class="flex justify-between">
+            <button id="cancel-modal" class="text-red-500">Cancel</button>
+            <button id="confirm-add-modal" class="bg-cosmic-purple text-white p-2 rounded">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div id="edit-vehicle-modal" class="fixed inset-0 bg-base-black bg-opacity-70 hidden flex justify-center items-center z-30">
+    <div class="bg-base-black text-white border-cosmic-purple border-2 p-6 rounded-xl max-w-md w-full relative">
+        <div class="mb-4">
+            <h2 class="text-xl font-bold">Edit vehicle</h2>
+        </div>
+
+        <div class="mb-4">
+            <div class="border-b-4 border-dark-grey">
+                <input type="text" id="edit-vehicle-name" class="input" placeholder="Name"/>
+            </div>
+            
+            <div class="border-b-4 border-dark-grey">
+                <input type="number" id="edit-vehicle-max-passengers" class="input !w-full" placeholder="Max passengers"/>
+            </div>
+        </div>
+
+        <div class="flex justify-between">
+            <button id="cancel-edit-modal" class="text-red-500">Cancel</button>
+            <button id="confirm-edit-modal" data-vehicle-id="" class="bg-cosmic-purple text-white p-2 rounded">Confirm</button>
+        </div>
+    </div>
+</div>

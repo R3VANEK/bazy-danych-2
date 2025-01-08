@@ -1,0 +1,24 @@
+<div class="travel-card !h-[10rem]">
+    <div class="flex items-center mt-1">
+        <i class="fa-brands fa-space-awesome"></i>
+        <p class="ml-4">{{ vehicle.name }}</p>
+    </div>
+
+    <div class="flex items-center mt-1">
+        <i class="fa-solid fa-fingerprint"></i>
+        <p class="ml-4">{{ vehicle.registration_number }}</p>
+    </div>
+
+    <div class="flex items-center mt-1">
+        <i class="fa-solid fa-person"></i>
+        <p class="ml-4">{{ vehicle.max_passengers }} max passengers</p>
+    </div>
+
+    <div class="edit-vehicle absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-vehicle-id="{{ vehicle.id }}">
+        <i class="fa-solid fa-edit"></i>
+    </div>
+
+    <div class="delete-vehicle absolute -bottom-4 -right-4 bg-danger p-4 text-white font-thin text-xl cursor-pointer" data-vehicle-id="{{ vehicle.id }}">
+        <i class="fa-solid fa-trash"></i>
+    </div>
+</div>

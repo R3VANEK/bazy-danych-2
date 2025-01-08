@@ -1,0 +1,43 @@
+<div class="flex flex-row items-center">
+    <i class="fa-solid fa-rocket text-cosmic-purple text-8xl"></i>
+    <h1 class="text-6xl text-white font-bold ml-4">Orbit Express</h1>
+</div>
+
+<div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-[1/6] transition duration-500 ease-in-out hover:ease-in-out overflow-visible">
+    <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
+        <span class="text-white text-2xl ml-5">&lt;&lt;</span>
+    </div>
+
+    <div class="w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21 mt-2 flex flex-col justify-start items-center">
+        {% for ride in my_rides %}
+            <div class="travel-card !text-2xl">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-earth-europe"></i>
+                    <p class="ml-4">to {{ ride.destination_name }}</p>
+                </div>
+
+                <div class="flex items-center">
+                    <i class="fa-solid fa-earth-europe"></i>
+                    <p class="ml-4">from {{ ride.departure_name }}</p>
+                </div>
+
+                <div class="flex items-center mt-2">
+                    <i class="fa-solid fa-calendar"></i>
+                    <p class="ml-4">{{ ride.course.start_date }}</p>
+                </div>
+
+                <div class="flex items-center mt-2">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <p class="ml-4">{{ ride.course.price }} TIX</p>
+                </div>
+
+                <div class="flex items-center mt-2">
+                    <i class="fa-solid fa-circle"></i>
+                    <p class="ml-4">Not paid</p>
+                </div>
+
+                <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
