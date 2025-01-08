@@ -1,0 +1,17 @@
+{
+  "name": "bazy-danych-2",
+  "version": "1.0.0",
+  "description": "1. skopiuj .env.template\r 2. zmień dane na swoją bazę mysql\r 3. zmień nazwę na .env\r 4. wejdź terminalem w ścieżkę projektu i odpal skrypt `./bin/startup`",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
+  }
+}
