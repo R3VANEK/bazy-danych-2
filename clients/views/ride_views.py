@@ -1,48 +1,18 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy
-from .forms import (
-    ClientLoginForm,
-    ClientRegistrationForm,
-)
-from django.http import HttpResponse, JsonResponse
-from planets.models import Planet
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-import json
-from datetime import datetime
 from django.db.models import F
+from planets.models import Planet
 from rides.models import Ride
-from .utils import get_courses
-
-
-# Widok logowania klienta
-def client_login(request):
-    is_error = False
-    if request.method == "POST":
-        form = ClientLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-            client = authenticate(request, username=username, password=password)
-            if client is not None:
-                login(request, client)
-                return redirect("client_home")
-        is_error = True
-    else:
-        form = ClientLoginForm()
-
-    return render(request, "clients/login.html", {"form": form, "is_error": is_error})
-
+from ..utils import get_courses
+import json
 
 def client_home(request):
-
     if not request.user.is_authenticated or not getattr(request.user, "client", None):
-        return reverse_lazy("driver_home")
+        return redirect("driver_home")
 
     all_courses = get_courses(client=request.user.client)
-
     my_rides = (
         Ride.objects.select_related("departure")
         .prefetch_related("course")
@@ -62,12 +32,9 @@ def client_home(request):
         },
     )
 
-
 @csrf_exempt
 def book_ride_endpoint(request):
-
     body = json.loads(request.body)
-
     departure_id = int(body.get("departureId"))
     course_id = int(body.get("courseId"))
 
@@ -101,12 +68,9 @@ def book_ride_endpoint(request):
         safe=False,
     )
 
-
 @csrf_exempt
 def courses_rest_view(request):
-
     body = json.loads(request.body)
-
     filtered_courses = get_courses(
         client=request.user.client,
         destination_id=body.get("destination"),
@@ -115,11 +79,4 @@ def courses_rest_view(request):
         time_for_departure=body.get("timeForDeparture"),
         driver_is_male=body.get("driverGender"),
     )
-
     return JsonResponse(list(filtered_courses.values()), safe=False)
-
-
-class ClientRegistrationView(CreateView):
-    template_name = "clients/register.html"
-    form_class = ClientRegistrationForm
-    success_url = reverse_lazy("client_home")
