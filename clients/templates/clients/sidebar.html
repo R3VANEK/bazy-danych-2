@@ -1,0 +1,11 @@
+<div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-[1/6] transition duration-500 ease-in-out hover:ease-in-out overflow-visible">
+    <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
+        <span class="text-white text-2xl ml-5">&lt;&lt;</span>
+    </div>
+
+    <div class="w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21 mt-2 flex flex-col justify-start items-center">
+        {% for ride in my_rides %}
+            {% include "clients/ride_card.html" with ride=ride %}
+        {% endfor %}
+    </div>
+</div>

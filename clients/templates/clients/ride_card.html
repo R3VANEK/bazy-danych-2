@@ -1,0 +1,28 @@
+<div class="travel-card !text-2xl">
+    <div class="flex items-center">
+        <i class="fa-solid fa-earth-europe"></i>
+        <p class="ml-4">to {{ ride.destination_name }}</p>
+    </div>
+
+    <div class="flex items-center">
+        <i class="fa-solid fa-earth-europe"></i>
+        <p class="ml-4">from {{ ride.departure_name }}</p>
+    </div>
+
+    <div class="flex items-center mt-2">
+        <i class="fa-solid fa-calendar"></i>
+        <p class="ml-4">{{ ride.course.start_date }}</p>
+    </div>
+
+    <div class="flex items-center mt-2">
+        <i class="fa-solid fa-dollar-sign"></i>
+        <p class="ml-4">{{ ride.course.price }} TIX</p>
+    </div>
+
+    <div class="flex items-center mt-2">
+        <i class="fa-solid fa-circle"></i>
+        <p class="ml-4">Not paid</p>
+    </div>
+
+    <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+</div>
