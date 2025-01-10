@@ -25,8 +25,10 @@
                 <span class="text-white text-2xl ml-5">&lt;&lt;</span>
             </div>
 
-            <div class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
-                {% for ride in my_rides %}
+            <div id="ride-container" class=" w-full h-[85vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
+
+
+                {% for ride in my_ride_requests %}
                     <div class="travel-card !text-2xl">
                         <div class="flex items-center">
                             <i class="fa-solid fa-earth-europe"></i>
@@ -40,22 +42,36 @@
 
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-calendar"></i>
-                            <p class="ml-4">{{ride.course.start_date}}</p>
+                            <p class="ml-4">{{ride.start_date|date:"d.m.Y"}}</p>
                         </div>
+
 
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-dollar-sign"></i>
-                            <p class="ml-4">{{ride.course.price}} TIX</p>
+                            <p class="ml-4">{{ride.price}} TIX</p>
                         </div>
+
 
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-circle"></i>
-                            <p class="ml-4">Not paid</p>
+                            <p class="ml-4">{{ride.status}}</p>
                         </div>
-                        
-                        <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+
+                        {% if ride.status == 'Waiting for accepting' %}
+                            <div data-ride-id="{{ride.id}}" class="accept-ride absolute -bottom-4 -right-4 bg-accept p-5 text-white font-thin text-3xl cursor-pointer">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                        {%endif%}
                     </div>
-                {% endfor %}
+                {% endfor%}
+
+               
+
+
+            </div>
+
+            <div class="text-center text-white h-[5vh] flex items-center justify-center text-xl">
+                <a href="{% url 'logout' %}">Logout</a>
             </div>
         </div>
     </div>
@@ -176,6 +192,13 @@
             $('body').addClass('blurred');
         });
 
+
+
+        $(document).on('click', '.accept-ride', function() {
+            const rideId = $(this).data('ride-id');
+            acceptRideRequest(rideId)
+        });
+
         $(document).on('click', '#add-vehicle', function() {
             $('#add-vehicle-modal').removeClass('hidden');
             $('body').addClass('blurred');
@@ -200,6 +223,103 @@
             $('#edit-vehicle-modal').addClass('hidden');
             $('body').removeClass('blurred');
         });
+
+
+        function acceptRideRequest(ride_id){
+        let acceptRideFetch = "{{accept_ride_url}}";
+        const csrfToken = getCSRFToken();
+
+        fetch(acceptRideFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                id: ride_id
+            })
+        })
+        .then((response) => response.json())
+        .then((response) => {
+            Toastify({
+                    text: response.text,
+                    duration:3000,
+                    style: {
+                        background: (response.type == "success") ? "green" : "red",
+                    }
+                }).showToast()
+
+            getRides()
+        });
+    }
+
+
+    function getRides() {
+        const getRidesFetch = "{{get_rides_url}}";
+        const csrfToken = getCSRFToken();
+
+        fetch(getRidesFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(response => {
+            updateRideList(response);
+        });
+    }
+
+
+    function updateRideList(rides) {
+        const ridesContainer = $('#ride-container');
+        const newRidesHTML = generateRideHTML(rides);
+        ridesContainer.html(newRidesHTML);
+    }
+
+
+    function generateRideHTML(rides) {
+        return rides.map(ride => {
+            return `
+                <div class="travel-card !text-2xl">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-earth-europe"></i>
+                        <p class="ml-4">to ${ride.destination_name}</p>
+                    </div>
+
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-earth-europe"></i>
+                        <p class="ml-4">from ${ride.departure_name}</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-calendar"></i>
+                        <p class="ml-4">${new Date(ride.start_date).toLocaleDateString('en-GB')}</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <p class="ml-4">${ride.price} TIX</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-circle"></i>
+                        <p class="ml-4">${ride.status}</p>
+                    </div>
+
+                    ${
+                        ride.status === 'Waiting for accepting'
+                            ? `<div data-ride-id="${ride.id}" class="accept-ride absolute -bottom-4 -right-4 bg-accept p-5 text-white font-thin text-3xl cursor-pointer">
+                                <i class="fa-solid fa-check"></i>
+                            </div>`
+                            : ''
+                    }
+                </div>
+            `;
+        }).join('');
+    }
+
 
 
         function editVehicleRequest(vehicleId, name, maxPassengers){

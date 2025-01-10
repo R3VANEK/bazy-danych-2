@@ -13,6 +13,8 @@ urlpatterns = [
     path(
         "courses/", login_required(views.driver_courses_manage), name="driver_courses"
     ),
+    path("rides/get", views.get_rides_endpoint, name="driver_rides"),
+    path("rides/accept", views.accept_ride_endpoint, name="driver_rides_accept"),
     path("rides/", login_required(views.driver_rides_manage), name="driver_rides"),
     path("login/", views.driver_login, name="driver_login"),
     path("register/", views.DriverRegistrationView.as_view(), name="driver_register"),

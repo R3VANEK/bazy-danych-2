@@ -30,7 +30,7 @@
             </div>
 
 
-            <div id="ride-container" class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
+            <div id="ride-container" class=" w-full h-[85vh] overflow-y-scroll scrollbar-hide z-21 mt-2 flex flex-col justify-start items-center">
 
 
                 {% for ride in my_rides %}
@@ -75,6 +75,10 @@
                
 
 
+            </div>
+
+            <div class="text-center text-white h-[5vh] flex items-center justify-center text-xl">
+                <a href="{% url 'logout' %}">Logout</a>
             </div>
         </div>
     </div>

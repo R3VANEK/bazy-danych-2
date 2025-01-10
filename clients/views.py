@@ -19,9 +19,7 @@ from .utils import get_courses, get_rides
 
 def __validate_client(request):
     if not getattr(request.user, "client", None):
-        return JsonResponse(
-            {"type": "error", "text": "You aren't a client and cannot manage this ride"}
-        )
+        return JsonResponse({"type": "error", "text": "You aren't a client"})
 
 
 def client_login(request):
@@ -49,7 +47,7 @@ def client_home(request):
 
     all_courses = get_courses(client=request.user.client)
 
-    my_rides = get_rides(request.user.client)
+    my_rides = get_rides(request.user)
     return render(
         request,
         "clients/main.html",
@@ -110,9 +108,7 @@ def pay_ride_endpoint(request):
 def get_rides_endpoint(request):
     __validate_client(request)
 
-    client = request.user.client
-
-    return JsonResponse(list(get_rides(client).values()), safe=False)
+    return JsonResponse(list(get_rides(request.user).values()), safe=False)
 
 
 @csrf_exempt

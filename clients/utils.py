@@ -9,24 +9,42 @@ from .models import Client
 from django.db.models import Case, When, Value, F
 
 
-def get_rides(client: Client):
+def get_rides(user):
 
-    return (
-        Ride.objects.select_related("departure")
-        .prefetch_related("course")
-        .annotate(destination_name=F("course__destination__name"))
-        .annotate(departure_name=F("departure__name"))
-        .annotate(price=F("course__price"))
-        .annotate(start_date=F("course__start_date"))
-        .annotate(
-            status=Case(
-                When(is_accepted=False, then=Value("Waiting for accepting")),
-                When(is_paid=True, then=Value("Paid")),
-                default=Value("Not paid"),
+    if hasattr(user, "client"):
+        return (
+            Ride.objects.select_related("departure")
+            .prefetch_related("course")
+            .annotate(destination_name=F("course__destination__name"))
+            .annotate(departure_name=F("departure__name"))
+            .annotate(price=F("course__price"))
+            .annotate(start_date=F("course__start_date"))
+            .annotate(
+                status=Case(
+                    When(is_accepted=False, then=Value("Waiting for accepting")),
+                    When(is_paid=True, then=Value("Paid")),
+                    default=Value("Not paid"),
+                )
             )
+            .filter(client_id=user.client.id)
         )
-        .filter(client_id=client.id)
-    )
+    else:
+        return (
+            Ride.objects.select_related("departure")
+            .prefetch_related("course")
+            .annotate(destination_name=F("course__destination__name"))
+            .annotate(departure_name=F("departure__name"))
+            .annotate(price=F("course__price"))
+            .annotate(start_date=F("course__start_date"))
+            .annotate(
+                status=Case(
+                    When(is_accepted=False, then=Value("Waiting for accepting")),
+                    When(is_paid=True, then=Value("Paid")),
+                    default=Value("Not paid"),
+                )
+            )
+            .filter(course__vehicle__driver_id=user.driver.id, is_accepted=False)
+        )
 
 
 def get_courses(
