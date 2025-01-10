@@ -1,0 +1,453 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://kit.fontawesome.com/5628e1606a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <title>Manage Courses</title>
+    {% tailwind_css %}
+</head>
+<body class="bg-[#000] flex flex-col items-center justify-center h-full">
+
+    <div id="navbar" class="w-screen flex flex-row p-5 h-[15vh] z-20">
+        <div class="flex flex-row items-center">
+            <i class="fa-solid fa-rocket text-cosmic-purple text-8xl"></i>
+            <h1 class="text-6xl text-white font-bold ml-4">Manage Courses</h1>
+        </div>
+        <div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-[1/6] transition duration-500 ease-in-out hover:ease-in-out overflow-visible">
+            <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
+                <span class="text-white text-2xl ml-5">&lt;&lt;</span>
+            </div>
+
+            <div class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
+                {% for ride in my_rides %}
+                    <div class="travel-card !text-2xl">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-earth-europe"></i>
+                            <p class="ml-4">to {{ride.destination_name}}</p>
+                        </div>
+
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-earth-europe"></i>
+                            <p class="ml-4">from {{ride.departure_name}}</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-calendar"></i>
+                            <p class="ml-4">{{ride.course.start_date}}</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <p class="ml-4">{{ride.course.price}} TIX</p>
+                        </div>
+
+                        <div class="flex items-center mt-2">
+                            <i class="fa-solid fa-circle"></i>
+                            <p class="ml-4">Not paid</p>
+                        </div>
+                        
+                        <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="w-[75vw] h-[85vh] mt-0 z-10">
+
+        <div class="w-full h-auto flex flex-col mt-24"> 
+            <div class="flex flex-row justify-start items-start flex-wrap w-full gap-3 text-2xl font-bold">
+                <a href="/drivers/vehicles/">
+                    <div class="bg-dark-grey p-3 rounded-md text-white">Manage your vehicles</div>
+                </a>
+                <a href="/drivers/courses/">
+                    <div class="bg-cosmic-purple p-3 rounded-md text-white">Manage your courses</div>
+                </a>
+                <div id="add-course" class="rounded-full w-14 h-14 bg-accept cursor-pointer flex justify-center items-center text-white">
+                    <i class="fa-solid fa-add"></i>
+                </div>
+            </div>
+        </div>
+        <div id="courses-holder" class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
+            {% for course in courses %}
+            <div class="flex items-center mt-1">
+                <i class="fa-solid fa-clock"></i>
+                <p class="ml-4">{{ course.duration }} hours</p>
+            </div>
+            
+            <div class="flex items-center mt-1">
+                <i class="fa-solid fa-car"></i>
+                <p class="ml-4">{{ course.vehicle_id }}</p>
+            </div>
+            
+            <div class="flex items-center mt-1">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <p class="ml-4">{{ course.price }} TIX</p>
+            </div>
+            
+            <div class="edit-course absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-course-id="{{ course.id }}">
+                <i class="fa-solid fa-edit"></i>
+            </div>
+            
+            <div class="delete-course absolute -bottom-4 -right-4 bg-danger p-4 text-white font-thin text-xl cursor-pointer" data-course-id="{{ course.id }}">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="fixed w-full h-auto z-0 bottom-0 left-0">
+        <img src="{% static 'img/planet.jpeg' %}" class="w-full h-auto" alt="planet">
+    </div>
+
+    <div id="add-course-modal" class="fixed inset-0 bg-base-black bg-opacity-70 hidden flex justify-center items-center z-30">
+        <div class="bg-base-black text-white border-cosmic-purple border-2 p-6 rounded-xl max-w-md w-full relative">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold">Add New Course</h2>
+            </div>
+
+            <div class="mb-4">
+                <div class="border-b-4 border-dark-grey">
+                    <input type="text" id="add-course-destination" class="input" placeholder="Destination"/>
+                </div>
+                <div class="border-b-4 border-dark-grey">
+                    <input type="number" id="add-course-duration" class="input" placeholder="Duration (hours)"/>
+                </div>
+                <div class="border-b-4 border-dark-grey">
+                    <select id="add-course-vehicle" class="input">
+                        <option value="">Select a vehicle</option>
+                    </select>
+                </div>
+                <div class="border-b-4 border-dark-grey">
+                    <input type="number" id="add-course-price" class="input" placeholder="Price"/>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="cancel-course-modal" class="text-red-500">Cancel</button>
+                <button id="confirm-add-course" class="bg-cosmic-purple text-white p-2 rounded">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-course-modal" class="fixed inset-0 bg-base-black bg-opacity-70 hidden flex justify-center items-center z-30">
+        <div class="bg-base-black text-white border-cosmic-purple border-2 p-6 rounded-xl max-w-md w-full relative">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold">edit course</h2>
+            </div>
+
+            <div class="mb-4">
+                <div class="border-b-4 border-dark-grey">
+                    <input type="text" id="add-course-destination" class="input" placeholder="Destination"/>
+                </div>
+                <div class="border-b-4 border-dark-grey">
+                    <input type="number" id="add-course-duration" class="input" placeholder="Duration (hours)"/>
+                </div>
+                <div class="border-b-4 border-dark-grey">
+                    <input type="text" id="add-course-vehicle" class="input" placeholder="Vehicle ID"/>
+                </div>
+                <div class="border-b-4 border-dark-grey">
+                    <input type="number" id="add-course-price" class="input" placeholder="Price"/>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="cancel-course-modal" class="text-red-500">Cancel</button>
+                <button id="confirm-add-course" class="bg-cosmic-purple text-white p-2 rounded">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+        $(document).on('click', '.delete-course', function() {
+            deleteCourseRequest($(this).data('course-id'));
+            getCourseList();
+        });
+
+        $(document).on('click', '.edit-course', function() {
+            const courseId = $(this).data('course-id');
+            fetchCourseData(courseId);
+            $('#add-course-modal').removeClass('hidden');
+        });
+
+        $('#add-course').on('click', function() {
+            $('#add-course-modal').removeClass('hidden');
+        });
+
+        $('#cancel-course-modal').on('click', function() {
+            $('#add-course-modal').addClass('hidden');
+        });
+
+        $('#add-course').on('click', function() {
+            populateVehicleDropdown();
+        $('#add-course-modal').removeClass('hidden');
+        });
+
+        $('#confirm-edit-modal').on('click',function(){
+            let courseId = $("#confirm-edit-modal").data("course-id")
+            let maxPassengers = $("#edit-course-max-passengers").val()
+            let name = $("#edit-course-name").val()
+            editCourseRequest(courseId, name,maxPassengers)
+            $('#edit-course-modal').addClass('hidden');
+            $('body').removeClass('blurred');
+        });
+
+        function editCourseRequest(courseId, name, maxPassengers){
+            const csrfToken = getCSRFToken();
+            const editCourseUrl = `{{edit_course_url}}`;
+            fetch(editCourseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                   id: courseId,
+                   name: name,
+                   maxPassengers: maxPassengers
+                })
+            })
+            .then(response => response.json())
+            .then(response => {
+                Toastify({
+                        text: response.text,
+                        duration:3000,
+                        style: {
+                            background: (response.type == "success") ? "green" : "red",
+                        }
+                    }).showToast()
+
+                getCourseList()
+            });
+        }
+
+        function validateCourseInputs(destination, duration, vehicleId, price) {
+        if (!destination || !duration || !vehicleId || !price) {
+            Toastify({
+                text: "Please fill all fields!",
+                duration: 3000,
+                style: { background: "red" }
+            }).showToast();
+            return false;
+        }
+
+        if (duration <= 0 || price <= 0) {
+            Toastify({
+                text: "Duration and Price must be positive numbers!",
+                duration: 3000,
+                style: { background: "red" }
+            }).showToast();
+            return false;
+        }
+
+        return true;
+    }
+
+    function getVehiclesList() {
+        const csrfToken = getCSRFToken();
+        const getVehiclesUrl = "{{ get_vehicles_url }}";
+
+        return fetch(getVehiclesUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch vehicles");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && Array.isArray(data)) {
+                return data;
+            } else {
+                throw new Error("Invalid response format");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching vehicles:", error);
+            return [];
+        });
+    }
+
+    async function populateVehicleDropdown() {
+        const vehicles = await getVehiclesList();
+        const vehicleDropdown = document.getElementById('add-course-vehicle');
+
+        vehicles.forEach(vehicle => {
+            const option = document.createElement('option');
+            option.value = vehicle.id;
+            option.textContent = vehicle.name;
+            vehicleDropdown.appendChild(option);
+        });
+    }
+
+        $('#cancel-edit-modal').on('click', function() {
+            $('#edit-course-modal').addClass('hidden');
+            $('body').removeClass('blurred');
+        });
+
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [key, value] = cookie.trim().split('=');
+                if (key === 'csrftoken') return decodeURIComponent(value);
+            }
+            return null;
+        }
+
+        function generateCourseHTML(course) {
+        return course.map(course => `
+            <div class="travel-card !h-[10rem]">
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-map-marker-alt"></i>
+                    <p class="ml-4">${course.destination}</p>
+                </div>
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-clock"></i>
+                    <p class="ml-4">${course.duration} hours</p>
+                </div>
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-car"></i>
+                    <p class="ml-4">${course.vahicle_id}</p>
+                </div>
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <p class="ml-4">$${course.price}</p>
+                </div>
+                <div class="edit-course absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-course-id="${course.id}">
+                    <i class="fa-solid fa-edit"></i>
+                </div>
+                <div class="delete-course absolute -bottom-4 -right-4 bg-danger p-4 text-white font-thin text-xl cursor-pointer" data-course-id="${course.id}">
+                    <i class="fa-solid fa-trash"></i>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateCourseList(course) {
+        const coursesContainer = $('#courses-list');
+        const newCoursesHTML = generateCourseHTML(course);
+        coursesContainer.html(newCoursesHTML);
+    }
+
+    function getCourseList() {
+            const csrfToken = getCSRFToken();
+            fetch('{{ get_courses_url }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(courses => {
+                const courseHTML = courses.map(course => `
+                    <div class="travel-card !h-[10rem]">
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-map-marker-alt"></i>
+                            <p class="ml-4">${course.destination}</p>
+                        </div>
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-clock"></i>
+                            <p class="ml-4">${course.duration} hours</p>
+                        </div>
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-car"></i>
+                            <p class="ml-4">${course.vehicle_name}</p>
+                        </div>
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <p class="ml-4">${course.price} TIX</p>
+                        </div>
+                        <div class="edit-course absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-course-id="${course.id}">
+                            <i class="fa-solid fa-edit"></i>
+                        </div>
+                        <div class="delete-course absolute -bottom-4 -right-4 bg-danger p-4 text-white font-thin text-xl cursor-pointer" data-course-id="${course.id}">
+                            <i class="fa-solid fa-trash"></i>
+                        </div>
+                    </div>
+                `).join('');
+
+                $('#courses-holder').html(courseHTML);
+            });
+        }
+
+        
+        function addCourseRequest() {
+    const destination = $('#add-course-destination').val();
+    const duration = $('#add-course-duration').val();
+    const price = $('#add-course-price').val();
+    const selectedVehicle = JSON.parse($('#add-course-vehicle').val());
+
+    if (!validateCourseInputs(destination, duration, selectedVehicle.id, price)) {
+        return;
+    }
+
+    const csrfToken = getCSRFToken();
+    fetch('{{ add_course_url }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            destination: destination,
+            duration: duration,
+            price: price,
+            vehicle: selectedVehicle
+        })
+    })
+    .then(response => response.json())
+    .then(response => {
+        Toastify({
+            text: response.text,
+            duration: 3000,
+            style: { background: response.type === 'success' ? 'green' : 'red' }
+        }).showToast();
+
+        if (response.type === 'success') getCourseList();
+    });
+}
+
+        function deleteCourseRequest(courseId) {
+            const csrfToken = getCSRFToken();
+            fetch('{{ delete_course_url }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ id: courseId })
+            })
+            .then(response => response.json())
+            .then(response => {
+                Toastify({
+                    text: response.text,
+                    duration: 3000,
+                    style: { background: response.type === 'success' ? 'green' : 'red' }
+                }).showToast();
+
+                if (response.type === 'success') getCourseList();
+            });
+        }
+        $(document).ready(function() {
+            getCourseList();
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+        populateVehicleDropdown();
+    });
+    </script>
+</body>
+</html>

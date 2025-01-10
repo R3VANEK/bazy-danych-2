@@ -8,9 +8,10 @@ from .forms import (
 )
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .utils import get_vehicles
+from .utils import get_vehicles, get_courses
 import json
-from .models import Vehicle
+from .models import Vehicle, Course
+
 from clients.utils import get_rides
 from rides.models import Ride
 
@@ -18,7 +19,6 @@ from rides.models import Ride
 def __validate_driver(request):
     if not getattr(request.user, "driver", None):
         return JsonResponse({"type": "error", "text": "You aren't a driver"})
-
 
 def driver_login(request):
     is_error = False
@@ -67,7 +67,7 @@ def driver_vehicles_manage(request):
 def driver_courses_manage(request):
     return render(
         request,
-        "drivers/vehicles.html",
+        "drivers/courses.html",
     )
 
 
@@ -136,7 +136,6 @@ def get_vehicles_endpoint(request):
         )
 
     vehicle_list = get_vehicles(driver=request.user.driver)
-
     return JsonResponse(list(vehicle_list.values()), safe=False)
 
 
@@ -264,6 +263,157 @@ def delete_vehicle_endpoint(request):
         },
         safe=False,
     )
+
+def driver_courses_manage(request):
+    if not request.user.is_authenticated or not getattr(request.user, "driver", None):
+        return redirect("client_home")
+
+    course_list = get_courses(driver=request.user.driver)
+    print("Course List:", course_list)
+    return render(
+        request,
+        "drivers/courses.html",
+        {
+            "courses": list(course_list),
+            "delete_course_url": f"{request.build_absolute_uri()}delete",
+            "get_courses_url": f"{request.build_absolute_uri()}get",
+            "edit_course_url": f"{request.build_absolute_uri()}edit",
+            "get_course_url": f"{request.build_absolute_uri()}get/single",
+            "add_course_url": f"{request.build_absolute_uri()}add",
+        },
+    )
+
+
+@csrf_exempt
+def get_courses_endpoint(request):
+    if not getattr(request.user, "driver", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a driver and cannot manage courses!"}
+        )
+
+    course_list = get_courses(driver=request.user.driver)
+    return JsonResponse(list(course_list.values()), safe=False)
+
+
+@csrf_exempt
+def get_course_endpoint(request):
+    if not getattr(request.user, "driver", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a driver and cannot manage courses!"}
+        )
+
+    body = json.loads(request.body)
+    course_id = body.get("id")
+
+    if course_id is None:
+        return JsonResponse(
+            {"type": "error", "text": "Course ID is required!"}
+        )
+
+    course_list = get_courses(
+        driver=request.user.driver, course_id=int(course_id)
+    )
+
+    return JsonResponse(list(course_list.values()), safe=False)
+
+
+@csrf_exempt
+def edit_course_endpoint(request):
+    if not getattr(request.user, "driver", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a driver and cannot manage courses!"}
+        )
+
+    body = json.loads(request.body)
+    course_id = int(body.get("id"))
+    name = body.get("name")
+    description = body.get("description")
+
+    try:
+        course = Course.objects.get(id=course_id, driver=request.user.driver)
+    except Course.DoesNotExist:
+        return JsonResponse(
+            {"type": "error", "text": "Such course does not exist!"}, safe=False
+        )
+
+    course.name = name
+    course.description = description
+    course.save()
+
+    return JsonResponse({"type": "success", "text": "Course updated successfully!"}, safe=False)
+
+
+@csrf_exempt
+def add_course_endpoint(request):
+    if not getattr(request.user, "driver", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a driver and cannot manage courses!"}
+        )
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"type": "error", "text": "Invalid JSON in request body!"},
+            safe=False,
+        )
+
+    driver_id = request.user.driver.id
+    destination = body.get("destination")
+    duration = body.get("duration")
+    vehicle = body.get("vehicle")
+    price = body.get("price")
+    print(f"Driver ID: {driver_id}")
+    print(f"Destination: {destination}")
+    print(f"Duration: {duration}")
+    print(f"Vehicle: {vehicle}")
+    print(f"Price: {price}")
+
+    if not all([destination, duration, vehicle, price]):
+        return JsonResponse(
+            {"type": "error", "text": "All fields (destination, duration, vehicle, price) are required!"},
+            safe=False,
+        )
+
+    try:
+        course, created = Course.objects.get_or_create(
+            driver_id=driver_id,
+            destination=destination,
+            duration=duration,
+            vehicle=vehicle,
+            price=price,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"type": "error", "text": f"Some unexpected error occurred: {str(e)}"},
+            safe=False,
+        )
+
+    if not created:
+        return JsonResponse({"type": "error", "text": "Course already exists!"}, safe=False)
+
+    return JsonResponse({"type": "success", "text": "Course added successfully!"}, safe=False)
+
+
+@csrf_exempt
+def delete_course_endpoint(request):
+    if not getattr(request.user, "driver", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a driver and cannot manage courses!"}
+        )
+
+    body = json.loads(request.body)
+    course_id = int(body.get("id"))
+
+    try:
+        Course.objects.get(id=course_id, driver=request.user.driver).delete()
+    except Course.DoesNotExist:
+        return JsonResponse(
+            {"type": "error", "text": "Such course does not exist!"}, safe=False
+        )
+
+    return JsonResponse({"type": "success", "text": "Course deleted successfully!"}, safe=False)
+
 
 
 class DriverRegistrationView(CreateView):
