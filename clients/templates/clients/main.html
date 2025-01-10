@@ -30,7 +30,7 @@
             </div>
 
 
-            <div class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
+            <div id="ride-container" class=" w-full h-[90vh] overflow-y-scroll scrollbar-hide z-21  mt-2 flex flex-col justify-start items-center">
 
 
                 {% for ride in my_rides %}
@@ -47,22 +47,28 @@
 
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-calendar"></i>
-                            <p class="ml-4">{{ride.course.start_date}}</p>
+                            <p class="ml-4">{{ride.start_date|date:"d.m.Y"}}</p>
                         </div>
 
 
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-dollar-sign"></i>
-                            <p class="ml-4">{{ride.course.price}} TIX</p>
+                            <p class="ml-4">{{ride.price}} TIX</p>
                         </div>
 
 
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-circle"></i>
-                            <p class="ml-4">Not paid</p>
+                            <p class="ml-4">{{ride.status}}</p>
                         </div>
-                        
-                        <div class="absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+
+                        {% if ride.status == 'Waiting for accepting' %}
+                            <div data-ride-id="{{ride.id}}" class="quit-ride absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>
+                        {% elif ride.status == 'Not paid' %}
+                            <div data-ride-id="{{ride.id}}" class="pay-ride absolute -bottom-4 -right-4 bg-accept p-5 text-white font-thin text-3xl cursor-pointer">
+                                <i class="fa-solid fa-money-bill"></i>
+                            </div>
+                        {%endif%}
                     </div>
                 {% endfor%}
 
@@ -189,6 +195,16 @@
             $('body').addClass('blurred');
         });
 
+        $(document).on('click', '.quit-ride', function() {
+            rideId = $(this).data('ride-id');
+            quitRideRequest(rideId)
+        });
+
+        $(document).on('click', '.pay-ride', function() {
+            rideId = $(this).data('ride-id');
+            payRideRequest(rideId)
+        });
+
         $('#cancel-modal').on('click', function() {
             $('#course-modal').addClass('hidden');
             $('body').removeClass('blurred');
@@ -278,6 +294,64 @@
         coursesContainer.html(newCoursesHTML);
     }
 
+    function payRideRequest(ride_id){
+        let payRideFetch = "{{pay_ride_url}}";
+        const csrfToken = getCSRFToken();
+
+        fetch(payRideFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                id: ride_id
+            })
+        })
+        .then((response) => response.json())
+        .then((response) => {
+            Toastify({
+                    text: response.text,
+                    duration:3000,
+                    style: {
+                        background: (response.type == "success") ? "green" : "red",
+                    }
+                }).showToast()
+
+            getRides()
+            getCoursesFilter(true)
+        });
+    }
+
+    function quitRideRequest(ride_id){
+        let deleteRideFetch = "{{delete_ride_url}}";
+        const csrfToken = getCSRFToken();
+
+        fetch(deleteRideFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                id: ride_id
+            })
+        })
+        .then((response) => response.json())
+        .then((response) => {
+            Toastify({
+                    text: response.text,
+                    duration:3000,
+                    style: {
+                        background: (response.type == "success") ? "green" : "red",
+                    }
+                }).showToast()
+
+            getRides()
+            getCoursesFilter(true)
+        });
+    }
+
     function bookRideRequest(){
         let getCoursesFetch = "{{book_ride_url}}";
         const csrfToken = getCSRFToken();
@@ -315,12 +389,77 @@
                         background: (response.type == "success") ? "green" : "red",
                     }
                 }).showToast()
-
+            getRides()
             getCoursesFilter(true)
             $('#course-modal').addClass('hidden');
             $('body').removeClass('blurred');
         });
     }
+
+    function generateRideHTML(rides) {
+        return rides.map(ride => {
+            return `
+                <div class="travel-card !text-2xl">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-earth-europe"></i>
+                        <p class="ml-4">to ${ride.destination_name}</p>
+                    </div>
+
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-earth-europe"></i>
+                        <p class="ml-4">from ${ride.departure_name}</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-calendar"></i>
+                        <p class="ml-4">${new Date(ride.start_date).toLocaleDateString('en-GB')}</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <p class="ml-4">${ride.price} TIX</p>
+                    </div>
+
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-circle"></i>
+                        <p class="ml-4">${ride.status}</p>
+                    </div>
+
+                    ${
+                        ride.status === 'Waiting for accepting'
+                            ? `<div data-ride-id="${ride.id}" class="quit-ride absolute -bottom-4 -right-4 bg-danger p-5 text-white font-thin text-3xl cursor-pointer">X</div>`
+                            : ride.status === 'Not paid'
+                                ? `<div data-ride-id="${ride.id}" class="pay-ride absolute -bottom-4 -right-4 bg-accept p-5 text-white font-thin text-3xl cursor-pointer"><i class="fa-solid fa-money-bill"></i></div>`
+                                : ''
+                    }
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateRideList(rides) {
+        const ridesContainer = $('#ride-container');
+        const newRidesHTML = generateRideHTML(rides);
+        ridesContainer.html(newRidesHTML);
+    }
+
+    function getRides() {
+        const getRidesFetch = "{{get_rides_url}}";
+        const csrfToken = getCSRFToken();
+
+        fetch(getRidesFetch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(response => {
+            updateRideList(response);
+        });
+    }
+
 
     function getCoursesFilter(pure_refresh = false) {
         const destination = (!pure_refresh) ? $('#destination').val() : null;

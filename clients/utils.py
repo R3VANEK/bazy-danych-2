@@ -6,6 +6,27 @@ from django.db.models import Subquery, OuterRef, Avg, F, QuerySet, Count, Q, Val
 from django.db.models.functions import Concat
 from django.utils import timezone
 from .models import Client
+from django.db.models import Case, When, Value, F
+
+
+def get_rides(client: Client):
+
+    return (
+        Ride.objects.select_related("departure")
+        .prefetch_related("course")
+        .annotate(destination_name=F("course__destination__name"))
+        .annotate(departure_name=F("departure__name"))
+        .annotate(price=F("course__price"))
+        .annotate(start_date=F("course__start_date"))
+        .annotate(
+            status=Case(
+                When(is_accepted=False, then=Value("Waiting for accepting")),
+                When(is_paid=True, then=Value("Paid")),
+                default=Value("Not paid"),
+            )
+        )
+        .filter(client_id=client.id)
+    )
 
 
 def get_courses(

@@ -14,10 +14,16 @@ import json
 from datetime import datetime
 from django.db.models import F
 from rides.models import Ride
-from .utils import get_courses
+from .utils import get_courses, get_rides
 
 
-# Widok logowania klienta
+def __validate_client(request):
+    if not getattr(request.user, "client", None):
+        return JsonResponse(
+            {"type": "error", "text": "You aren't a client and cannot manage this ride"}
+        )
+
+
 def client_login(request):
     is_error = False
     if request.method == "POST":
@@ -43,19 +49,16 @@ def client_home(request):
 
     all_courses = get_courses(client=request.user.client)
 
-    my_rides = (
-        Ride.objects.select_related("departure")
-        .prefetch_related("course")
-        .annotate(destination_name=F("course__destination__name"))
-        .annotate(departure_name=F("departure__name"))
-        .filter(client_id=request.user.client.id)
-    )
+    my_rides = get_rides(request.user.client)
     return render(
         request,
         "clients/main.html",
         {
             "get_courses_url": f"{request.build_absolute_uri()}courses",
+            "get_rides_url": f"{request.build_absolute_uri()}rides",
             "book_ride_url": f"{request.build_absolute_uri()}ride/book",
+            "delete_ride_url": f"{request.build_absolute_uri()}ride/delete",
+            "pay_ride_url": f"{request.build_absolute_uri()}ride/pay",
             "planets": list(Planet.objects.all().distinct().values()),
             "courses": list(all_courses),
             "my_rides": list(my_rides),
@@ -64,7 +67,99 @@ def client_home(request):
 
 
 @csrf_exempt
+def pay_ride_endpoint(request):
+    __validate_client(request)
+
+    client = request.user.client
+    body = json.loads(request.body)
+    ride_id = int(body.get("id"))
+
+    try:
+        ride = Ride.objects.get(id=ride_id)
+    except Ride.DoesNotExist:
+        return JsonResponse(
+            {
+                "type": "error",
+                "text": "This ride doesn't exist",
+            },
+            safe=False,
+        )
+
+    if not ride.client == client:
+        return JsonResponse(
+            {
+                "type": "error",
+                "text": "This ride isn't yours",
+            },
+            safe=False,
+        )
+
+    ride.is_paid = True
+    ride.save()
+
+    return JsonResponse(
+        {
+            "type": "success",
+            "text": "paid for the ride!",
+        },
+        safe=False,
+    )
+
+
+@csrf_exempt
+def get_rides_endpoint(request):
+    __validate_client(request)
+
+    client = request.user.client
+
+    return JsonResponse(list(get_rides(client).values()), safe=False)
+
+
+@csrf_exempt
+def delete_ride_endpoint(request):
+
+    __validate_client(request)
+
+    client = request.user.client
+
+    body = json.loads(request.body)
+    ride_id = int(body.get("id"))
+
+    try:
+        ride = Ride.objects.get(id=ride_id)
+    except Ride.DoesNotExist:
+        return JsonResponse(
+            {
+                "type": "error",
+                "text": "This ride doesn't exist",
+            },
+            safe=False,
+        )
+
+    if not ride.client == client:
+        return JsonResponse(
+            {
+                "type": "error",
+                "text": "This ride isn't yours",
+            },
+            safe=False,
+        )
+
+    ride.delete()
+
+    return JsonResponse(
+        {
+            "type": "success",
+            "text": "deleted ride!",
+        },
+        safe=False,
+    )
+
+
+@csrf_exempt
 def book_ride_endpoint(request):
+
+    __validate_client(request)
 
     body = json.loads(request.body)
 
@@ -104,6 +199,8 @@ def book_ride_endpoint(request):
 
 @csrf_exempt
 def courses_rest_view(request):
+
+    __validate_client(request)
 
     body = json.loads(request.body)
 
