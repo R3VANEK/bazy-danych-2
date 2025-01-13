@@ -9,8 +9,8 @@ def get_vehicles(driver: Driver, vehicle_id: Optional[int] = None) -> QuerySet[V
         Vehicle.objects.prefetch_related("driver")
         .filter(driver_id=driver.id)
         .order_by("name")
-    )
-
+    )    
+    print(base_vehicle_query) 
     if vehicle_id:
         return base_vehicle_query.filter(id=vehicle_id)
 
