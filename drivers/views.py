@@ -6,13 +6,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from .forms import (
-    DriverLoginForm,
-    DriverRegistrationForm,
-)
-from .utils import get_vehicles, get_courses
-from .models import Vehicle, Course
-
+from .forms import DriverLoginForm, DriverRegistrationForm
+from .utils import get_vehicles, get_courses, get_planets
+from .models import Vehicle, Course, Planet
 from clients.utils import get_rides
 from rides.models import Ride
 
@@ -34,7 +30,6 @@ def driver_login(request):
         is_error = True
     else:
         form = DriverLoginForm()
-
     return render(request, "drivers/login.html", {"form": form, "is_error": is_error})
 
 def driver_vehicles_manage(request):
@@ -63,12 +58,14 @@ def driver_courses_manage(request):
         return redirect("client_home")
     course_list = get_courses(driver=request.user.driver)
     vehicle_list = get_vehicles(driver=request.user.driver)
+    planet_list = get_planets()
     return render(
         request,
         "drivers/courses.html",
         {
             "courses": list(course_list),
             "vehicles": list(vehicle_list),
+            "planets": list(planet_list),
             "delete_course_url": f"{request.build_absolute_uri()}delete",
             "get_courses_url": f"{request.build_absolute_uri()}get",
             "get_vehicles_url": reverse("vehicle_get"),
@@ -201,18 +198,38 @@ def get_course_endpoint(request):
 def edit_course_endpoint(request):
     if not getattr(request.user, "driver", None):
         return JsonResponse({"type": "error", "text": "You aren't a driver and cannot manage courses!"})
-    body = json.loads(request.body)
-    course_id = int(body.get("id"))
-    name = body.get("name")
-    description = body.get("description")
+
     try:
+        body = json.loads(request.body)
+        course_id = int(body.get("id"))
+        planet_id = body.get("planet")
+        duration = body.get("duration")
+        vehicle_id = body.get("vehicle")
+        price = body.get("price")
+
         course = Course.objects.get(id=course_id, vehicle__driver=request.user.driver)
+
+        if planet_id:
+            planet = Planet.objects.get(id=planet_id)
+            course.destination = planet
+
+        if vehicle_id:
+            vehicle = Vehicle.objects.get(id=vehicle_id, driver=request.user.driver)
+            course.vehicle = vehicle
+
+        course.duration_days = duration
+        course.price = price
+        course.save()
+
+        return JsonResponse({"type": "success", "text": "Course updated successfully!"})
     except Course.DoesNotExist:
-        return JsonResponse({"type": "error", "text": "Such course does not exist!"}, safe=False)
-    course.name = name
-    course.description = description
-    course.save()
-    return JsonResponse({"type": "success", "text": "Course updated successfully!"}, safe=False)
+        return JsonResponse({"type": "error", "text": "Course does not exist!"})
+    except Planet.DoesNotExist:
+        return JsonResponse({"type": "error", "text": "Planet does not exist!"})
+    except Vehicle.DoesNotExist:
+        return JsonResponse({"type": "error", "text": "Vehicle does not exist or does not belong to you!"})
+    except Exception as e:
+        return JsonResponse({"type": "error", "text": str(e)})
 
 @csrf_exempt
 def add_course_endpoint(request):
@@ -222,37 +239,31 @@ def add_course_endpoint(request):
         body = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({"type": "error", "text": "Invalid JSON in request body!"}, safe=False)
-
-    destination = body.get("destination")
-    duration = body.get("duration")
-    vehicle_id = body.get("vehicle")  
     price = body.get("price")
-    print(f"Driver: {request.user.driver}")
-    print(f"Destination: {destination}")
-    print(f"Duration: {duration}")
-    print(f"Vehicle: {vehicle_id}")
-    print(f"Price: {price}")
-
-    if not all([destination, duration, vehicle_id, price]):
-        return JsonResponse({"type": "error", "text": "All fields (destination, duration, vehicle, price) are required!"}, safe=False)
+    duration = body.get("duration")
+    vehicle_id = body.get("vehicle")
+    destination_id = body.get("planet")
+    if not all([duration, vehicle_id, price, destination_id]):
+        return JsonResponse({"type": "error", "text": "All fields (planet, duration, vehicle, price) are required!"}, safe=False)
     try:
         vehicle_instance = Vehicle.objects.get(id=vehicle_id, driver=request.user.driver)
     except Vehicle.DoesNotExist:
         return JsonResponse({"type": "error", "text": "Selected vehicle does not exist or does not belong to you."}, safe=False)
-
+    try:
+        planet_instance = Planet.objects.get(id=destination_id)
+    except Planet.DoesNotExist:
+        return JsonResponse({"type": "error", "text": "Selected planet does not exist."}, safe=False)
     try:
         course, created = Course.objects.get_or_create(
             vehicle=vehicle_instance,
-            destination=destination, 
+            destination=planet_instance,
             duration_days=duration, 
             price=price,
         )
     except Exception as e:
         return JsonResponse({"type": "error", "text": f"Some unexpected error occurred: {str(e)}"}, safe=False)
-
     if not created:
         return JsonResponse({"type": "error", "text": "Course already exists!"}, safe=False)
-
     return JsonResponse({"type": "success", "text": "Course added successfully!"}, safe=False)
 
 class DriverRegistrationView(CreateView):

@@ -18,12 +18,10 @@
             <i class="fa-solid fa-rocket text-cosmic-purple text-8xl"></i>
             <h1 class="text-6xl text-white font-bold ml-4">Orbit Express</h1>
         </div>
-
         <div class="bg-cosmic-purple w-1/4 h-full fixed z-20 top-12 right-0 translate-x-full hover:translate-x-[1/6] transition duration-500 ease-in-out hover:ease-in-out overflow-visible">
             <div class="w-full absolute -translate-x-1/4 top-0 bg-cosmic-purple h-10 rounded-full flex justify-start items-center">
                 <span class="text-white text-2xl ml-5">&lt;&lt;</span>
             </div>
-
             <div id="ride-container" class="w-full h-[85vh] overflow-y-scroll scrollbar-hide z-21 mt-2 flex flex-col justify-start items-center">
                 {% for ride in my_ride_requests %}
                     <div class="travel-card !text-2xl relative">
@@ -31,27 +29,23 @@
                             <i class="fa-solid fa-earth-europe"></i>
                             <p class="ml-4">to {{ ride.destination_name }}</p>
                         </div>
-
                         <div class="flex items-center">
                             <i class="fa-solid fa-earth-europe"></i>
                             <p class="ml-4">from {{ ride.departure_name }}</p>
                         </div>
-
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-calendar"></i>
                             <p class="ml-4">{{ ride.start_date|date:"d.m.Y" }}</p>
                         </div>
-
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-dollar-sign"></i>
                             <p class="ml-4">{{ ride.price }} TIX</p>
                         </div>
-
                         <div class="flex items-center mt-2">
                             <i class="fa-solid fa-circle"></i>
                             <p class="ml-4">{{ ride.status }}</p>
                         </div>
-
+                        
                         {% if ride.status == 'Waiting for accepting' %}
                             <div data-ride-id="{{ ride.id }}" class="accept-ride absolute -bottom-4 -right-4 bg-accept p-5 text-white font-thin text-3xl cursor-pointer">
                                 <i class="fa-solid fa-check"></i>
@@ -81,18 +75,36 @@
         </div>
         <div id="courses-holder" class="w-full bg-transparent min-h-[60vh] max-h-[60vh] mt-6 flex justify-between flex-row gap-2 flex-wrap overflow-y-auto overflow-x-hidden scrollbar-main">
             {% for course in courses %}
-            <div class="travel-card !h-[10rem] relative">
+            <div class="travel-card p-5 relative flex flex-col">
                 <div class="flex items-center mt-1">
-                    <i class="fa-solid fa-clock"></i>
-                    <p class="ml-4">{{ course.duration }} hours</p>
+                    <i class="fa-solid fa-globe"></i>
+                    <p class="ml-4">{{ course.destination.name }}</p>
                 </div>
                 <div class="flex items-center mt-1">
                     <i class="fa-solid fa-car"></i>
-                    <p class="ml-4">{{ course.vehicle_id }}</p>
-                </div>
+                    <p class="ml-4">{{ course.vehicle.name }}</p>
+                </div> 
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-clock"></i>
+                    <p class="ml-4">{{ course.duration_days }} hours</p>
+                </div>                               
                 <div class="flex items-center mt-1">
                     <i class="fa-solid fa-dollar-sign"></i>
                     <p class="ml-4">{{ course.price }} TIX</p>
+                </div>
+                <div class="flex items-center mt-1">
+                    <i class="fa-solid fa-person"></i>
+                    <p class="ml-4">{{ course.taken_seats }}/{{ course.max_seats }}</p>
+                </div>
+                <div class="flex flex-col mt-1">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-user"></i>
+                        <div class="flex flex-col ml-4">
+                            {% for ride in course.rides.all %}
+                                <p>{{ ride.client.user.first_name }} {{ ride.client.user.last_name }} | {{ ride.is_paid|yesno:"paid,not paid" }} | {{ ride.departure.name }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
                 <div class="edit-course absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-course-id="{{ course.id }}">
                     <i class="fa-solid fa-edit"></i>
@@ -114,7 +126,12 @@
             </div>
             <div class="mb-4">
                 <div class="border-b-4 border-dark-grey mb-2">
-                    <input type="text" id="add-course-destination" class="input" placeholder="Destination"/>
+                    <select id="add-course-planet" class="input">
+                        <option value="">Select a planet</option>
+                        {% for planet in planets %}
+                        <option value="{{ planet.id }}">{{ planet.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="border-b-4 border-dark-grey mb-2">
                     <input type="number" id="add-course-duration" class="input" placeholder="Duration (hours)"/>
@@ -141,7 +158,12 @@
             </div>
             <div class="mb-4">
                 <div class="border-b-4 border-dark-grey mb-2">
-                    <input type="text" id="edit-course-destination" class="input" placeholder="Destination"/>
+                    <select id="edit-course-planet" class="input">
+                        <option value="">Select a planet</option>
+                        {% for planet in planets %}
+                        <option value="{{ planet.id }}">{{ planet.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="border-b-4 border-dark-grey mb-2">
                     <input type="number" id="edit-course-duration" class="input" placeholder="Duration (hours)"/>
@@ -166,37 +188,30 @@
         $(document).on('click', '.delete-course', function() {
             deleteCourseRequest($(this).data('course-id'));
         });
-
         $(document).on('click', '.edit-course', function() {
             const courseId = $(this).data('course-id');
             fetchCourseData(courseId);
             $('#edit-course-modal').removeClass('hidden');
         });
-
         $('#cancel-course-modal').on('click', function() {
             $('#add-course-modal').addClass('hidden');
         });
-
         $('#cancel-edit-modal').on('click', function() {
             $('#edit-course-modal').addClass('hidden');
         });
-
         $('#add-course').on('click', function() {
             populateVehicleDropdown('#add-course-vehicle');
             $('#add-course-modal').removeClass('hidden');
         });
-
         $('#confirm-add-course').on('click', function() {
             addCourseRequest();
             $('#add-course-modal').addClass('hidden');
         });
-
         $('#confirm-edit-course').on('click', function() {
             const courseId = $(this).data('course-id');
             editCourseRequest(courseId);
             $('#edit-course-modal').addClass('hidden');
         });
-
         function getCSRFToken() {
             const cookies = document.cookie.split(';');
             for (let cookie of cookies) {
@@ -205,7 +220,6 @@
             }
             return null;
         }
-
         async function populateVehicleDropdown(selectSelector) {
             const getVehiclesUrl = "{{ get_vehicles_url }}";
             const csrfToken = getCSRFToken();
@@ -241,9 +255,8 @@
                 }).showToast();
             }            
         }
-
-        function validateCourseInputs(destination, duration, vehicleObj, price) {
-            if (!destination || !duration || !vehicleObj || !price) {
+        function validateCourseInputs(planet, duration, vehicleObj, price) {
+            if (!planet || !duration || !vehicleObj || !price) {
                 Toastify({ text: "Please fill all fields!", duration: 3000, style: { background: "red" } }).showToast();
                 return false;
             }
@@ -253,9 +266,8 @@
             }
             return true;
         }
-
         function addCourseRequest() {
-            const destination = $('#add-course-destination').val();
+            const planet = $('#add-course-planet').val();
             const duration = $('#add-course-duration').val();
             const price = $('#add-course-price').val();
             const selectedVehicleValue = $('#add-course-vehicle').val();
@@ -264,7 +276,7 @@
                 return;
             }
             const vehicleObj = JSON.parse(selectedVehicleValue);
-            if (!validateCourseInputs(destination, duration, vehicleObj, price)) {
+            if (!validateCourseInputs(planet, duration, vehicleObj, price)) {
                 return;
             }
             const csrfToken = getCSRFToken();
@@ -275,7 +287,7 @@
                     'X-CSRFToken': csrfToken
                 },
                 body: JSON.stringify({
-                    destination: destination,
+                    planet: planet,
                     duration: duration,
                     price: price,
                     vehicle: vehicleObj.id
@@ -293,7 +305,6 @@
                 }
             });
         }
-
         function deleteCourseRequest(courseId) {
             const csrfToken = getCSRFToken();
             fetch('{{ delete_course_url }}', {
@@ -314,7 +325,6 @@
                 if (response.type === 'success') getCourseList();
             });
         }
-
         function getCourseList() {
             const csrfToken = getCSRFToken();
             fetch('{{ get_courses_url }}', {
@@ -330,19 +340,23 @@
                     `<div class="travel-card !h-[10rem] relative">
                         <div class="flex items-center mt-1">
                             <i class="fa-solid fa-map-marker-alt"></i>
-                            <p class="ml-4">${course.destination}</p>
+                            <p class="ml-4">${course.destination.name}</p>
                         </div>
                         <div class="flex items-center mt-1">
                             <i class="fa-solid fa-clock"></i>
-                            <p class="ml-4">${course.duration} hours</p>
+                            <p class="ml-4">${course.duration_days} hours</p>
                         </div>
                         <div class="flex items-center mt-1">
                             <i class="fa-solid fa-car"></i>
-                            <p class="ml-4">${course.vehicle_name}</p>
+                            <p class="ml-4">${course.vehicle}</p>
                         </div>
                         <div class="flex items-center mt-1">
                             <i class="fa-solid fa-dollar-sign"></i>
                             <p class="ml-4">${course.price} TIX</p>
+                        </div>                        
+                        <div class="flex items-center mt-1">
+                            <i class="fa-solid fa-person"></i>
+                            <p class="ml-4">${course.taken_seats} / ${course.max_seats} seats left</p>
                         </div>
                         <div class="edit-course absolute bottom-12 -right-4 bg-cosmic-purple p-4 text-white font-thin text-xl cursor-pointer" data-course-id="${course.id}">
                             <i class="fa-solid fa-edit"></i>
@@ -355,7 +369,6 @@
                 $('#courses-holder').html(courseHTML);
             });
         }
-
         function fetchCourseData(courseId) {
             const csrfToken = getCSRFToken();
             fetch('{{ get_course_url }}', {
@@ -370,8 +383,8 @@
             .then(courseData => {
                 if (courseData && courseData[0]) {
                     const c = courseData[0];
-                    $('#edit-course-destination').val(c.destination);
-                    $('#edit-course-duration').val(c.duration);
+                    $('#edit-course-planet').val(c.planet_id);
+                    $('#edit-course-duration').val(c.duration_days);
                     $('#edit-course-price').val(c.price);
                     populateVehicleDropdown('#edit-course-vehicle').then(() => {
                         $('#edit-course-vehicle').val(JSON.stringify({ id: c.vehicle_id, name: c.vehicle_name }));
@@ -380,9 +393,8 @@
                 }
             });
         }
-
         function editCourseRequest(courseId) {
-            const destination = $('#edit-course-destination').val();
+            const planet = $('#edit-course-planet').val();
             const duration = $('#edit-course-duration').val();
             const price = $('#edit-course-price').val();
             const selectedVehicleValue = $('#edit-course-vehicle').val();
@@ -391,7 +403,7 @@
                 return;
             }
             const vehicleObj = JSON.parse(selectedVehicleValue);
-            if (!validateCourseInputs(destination, duration, vehicleObj, price)) {
+            if (!validateCourseInputs(planet, duration, vehicleObj, price)) {
                 return;
             }
             const csrfToken = getCSRFToken();
@@ -403,10 +415,10 @@
                 },
                 body: JSON.stringify({
                     id: courseId,
-                    destination: destination,
+                    planet: planet,
                     duration: duration,
                     price: price,
-                    vehicle_id: vehicleObj.id
+                    vehicle: vehicleObj.id
                 })
             })
             .then(response => response.json())
@@ -419,7 +431,6 @@
                 if (response.type === 'success') getCourseList();
             });
         }
-
         $(document).ready(function() {
             getCourseList();
         });
